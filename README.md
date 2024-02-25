@@ -1,118 +1,45 @@
-# Telematics SDK
+## Getting Started
+
+### Set up from the CLI 
+
+1. ```cd``` into the 'example' directory
+
+2. run ```firebase login```
+   
+3. Once you've logged in, run ```flutterfire configure```
+   
+    i. Select the appropriate project
+   ii. Choose which platforms you'd like to be supported (iOS & Android)
+
+4. Make sure Flutter's installed: ```flutter doctor``` 
+
+5. run ```flutter pub get```
+    i. (opt.) run ```flutter pub outdated``` to see dependencies that could be upgraded
+   ii. run ```flutter pub upgrade <pkgName>``` to update a specific dependency
+       a. OR run ```flutter pub upgrade --major versions``` (may cause version errors)
+   
+6. Make sure to have a simulator available
+    i. run ```flutter devices``` to see what emulators are available
+   ii. (iOS) run ```open -a simulator``` (there's probably an Android equivalent, but I don't know it)
+
+7. run ```flutter run``` and you're all set 
+
+###
+__Basic Project Structure__: 
+- Credential Authentication & API calls are mainly in the 'example/lib/services' folder
+- All UIs are in the 'example/lib/screens' folder
+    - The Patient & Physician files should be in their respective folders 
+
+#### Links
+
+[https://damoov.com](https://damoov.com/)
+
+#### Telematics SDK
 
 A flutter plugin for tracking the person's driving behavior such as speeding, turning, braking and several other things on iOS and Android.
 
 __Disclaimer__: This project uses Telematics SDK which belongs to DAMOOV PTE. LTD.  
 When using Telematics SDK refer to these [terms of use](https://docs.damoov.com/docs/license)
 
-## Getting Started
+For commercial use, you need to create a developer workspace in [DataHub](https://app.damoov.com) and get the `InstanceId` and `InstanceKey` auth keys to work with the API.
 
-### Initial app setup & credentials
-
-For commercial use, you need create a developer workspace in [DataHub](https://app.damoov.com) and get `InstanceId` and `InstanceKey` auth keys to work with our API.
-
-### Android
-
-#### AndroidManifest.xml
-
-add to file ./app/src/main/AndroidManifest.xml props:
-
-1. 'xmlns:tools="http://schemas.android.com/tools"' into __manifest__ tag
-2. 'tools:replace="android:label"' into __application tag
-
-as shown below:
-
-``` xml
-<manifest
-    xmlns:tools="http://schemas.android.com/tools">
-    <application
-        tools:replace="android:label">
-        ...
-    </application>
-    ...
-</manifest>
-
-```
-
-add network permissions
-
-``` xml
-<manifest>
-...
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-...
-```
-
-#### Proguard
-
-``` markdown
--keep public class com.raxeltelematics.** {*;}
-```
-
-### Android Advanced
-
-#### SetTrackingSettings
-
-1. Override application class extends __TelematicsSDKApp__
-
-    ``` kotlin
-    import com.telematicssdk.TelematicsSDKApp
-
-    class App: TelematicsSDKApp() {
-        //...
-    }
-    ```
-
-2. add to tag __application__ of file ./app/src/main/AndroidManifest.xml this class __name__:
-
-    ``` xml
-    <application
-            android:name=".App">
-        ...
-    </application>
-
-    ```
-
-3. add Telematics SDK repository into (module)/gradle.build
-
-    ```groovy
-    dependencies {
-        //...
-        implementation "com.telematicssdk:tracking:2.2.260"
-    }
-    ```
-
-### iOS
-
-Add permissions in your project's `ios/Runner/Info.plist`:
-
-``` xml
-    <key>UIBackgroundModes</key>
-    <array>
-        <string>fetch</string>
-        <string>location</string>
-        <string>remote-notification</string>
-    </array>
-    <key>NSMotionUsageDescription</key>
-    <string>Please, provide permissions for this Demo</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Please, provide permissions for this Demo</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Please, provide permissions for this Demo</string>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Please, provide permissions for this Demo</string>
-    <key>BGTaskSchedulerPermittedIdentifiers</key>
-    <array>
-        <string>sdk.damoov.apprefreshtaskid</string>
-        <string>sdk.damoov.appprocessingtaskid</string>
-    </array>
-```
-Starting from iOS version 15 and above, as well as Flutter 2.0.6, modification of `ios/Runner/AppDelegate.swift` is required 
-You must request permissions for the application before GeneratedPluginRegistrant
-[Example AppDelegate.swift](https://github.com/Mobile-Telematics/telematicsSDK-demoapp-flutter-/blob/main/example/ios/Runner/AppDelegate.swift)
-
-## Links
-
-[https://damoov.com](https://damoov.com/)
