@@ -14,7 +14,7 @@
 4. Make sure Flutter's installed: ```flutter doctor``` 
 
 5. run ```flutter pub get```
-    i. (opt.) run ```flutter pub outdated``` to see dependencies that could be upgraded
+   i. (opt.) run ```flutter pub outdated``` to see dependencies that could be upgraded
    ii. run ```flutter pub upgrade <pkgName>``` to update a specific dependency
        a. OR run ```flutter pub upgrade --major versions``` (may cause version errors)
    
