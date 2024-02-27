@@ -9,7 +9,7 @@
 3. Once you've logged in, run ```flutterfire configure```
    
     i. Select the appropriate project
-   ii. Choose which platforms you'd like to be supported (iOS & Android)
+ii. Choose which platforms you'd like to be supported (iOS & Android)
 
 4. Make sure Flutter's installed: ```flutter doctor``` 
 
