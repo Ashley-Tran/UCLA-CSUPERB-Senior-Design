@@ -6,7 +6,7 @@
 
 2. run ```firebase login```
    
-3. Once you've logged in, run ```flutterfire configure```
+3. Once you've logged in, run ```dart pub global activate flutterfire_cli```, then ```flutterfire configure```
    
     i. Select the appropriate project
 ii. Choose which platforms you'd like to be supported (iOS & Android)
