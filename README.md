@@ -4,25 +4,26 @@
 
 1. ```cd``` into the 'example' directory
 
-2. run ```firebase login```
+2. run ```npm install -g firebase-tools``` to install Firebase CLI then run ```firebase login``` 
    
-3. Once you've logged in, run ```flutterfire configure```
-   
-    i. Select the appropriate project
-   ii. Choose which platforms you'd like to be supported (iOS & Android)
+3. Once you've logged in, run ```dart pub global activate flutterfire_cli``` to install the FlutterFire CLI, then ```flutterfire configure```
+   *ADD STEPS ON SETTING UP FLUTTER AFTER INSTALL*
+    i.Select the appropriate project
+   ii.
+ii. Choose which platforms you'd like to be supported (iOS & Android)
 
-4. Make sure Flutter's installed: ```flutter doctor``` 
+5. Make sure Flutter's installed: ```flutter doctor``` 
 
-5. run ```flutter pub get```
-    i. (opt.) run ```flutter pub outdated``` to see dependencies that could be upgraded
+6. run ```flutter pub get```
+   i. (opt.) run ```flutter pub outdated``` to see dependencies that could be upgraded
    ii. run ```flutter pub upgrade <pkgName>``` to update a specific dependency
        a. OR run ```flutter pub upgrade --major versions``` (may cause version errors)
    
-6. Make sure to have a simulator available
+7. Make sure to have a simulator available
     i. run ```flutter devices``` to see what emulators are available
    ii. (iOS) run ```open -a simulator``` (there's probably an Android equivalent, but I don't know it)
 
-7. run ```flutter run``` and you're all set 
+8. run ```flutter run``` and you're all set 
 
 ###
 __Basic Project Structure__: 
