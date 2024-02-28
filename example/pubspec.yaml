@@ -11,6 +11,7 @@ dependencies:
   firebase_database: ^10.4.4
   http: ^1.2.0
   url_launcher: ^6.2.5
+  flutter_pw_validator: ^1.6.0
   flutter:
     sdk: flutter
 
@@ -21,4 +22,10 @@ dependencies:
 flutter:
   assets:
     - assets/images/road.png
+    - assets/images/firebase_icon.png
+    - assets/images/telematics_icon.png
+    - assets/images/analytics_icon.png
+    - assets/images/phone_icon.png
+    - assets/images/gear_icon.png
+    - assets/images/screens.png
   uses-material-design: true

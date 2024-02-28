@@ -4,6 +4,7 @@ import 'package:telematics_sdk_example/services/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:telematics_sdk_example/screens/patientUI/patient_home_screen.dart';
 import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
+import 'package:flutter_pw_validator/flutter_pw_validator.dart';
 
 const String virtualDeviceToken = '';
 
@@ -222,6 +223,29 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     );
   }
 
+  Widget _email(TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40.0),
+      child: TextFormField(
+        decoration: const InputDecoration(
+          hintText: 'EMAIL ADDRESS',
+        ),
+        validator: (String? value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter an email';
+          }
+          // Check for a valid email format using a regular expression
+          if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
+              .hasMatch(value)) {
+            return 'Please enter a valid email address';
+          }
+          // controller = value;
+          return null; // Return null for valid input
+        },
+      ),
+    );
+  }
+
 // Displays link and calls UnifiedAuthService method to send reset email
   Widget _forgotPasswordLink() {
     return Padding(
@@ -391,6 +415,73 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     );
   }
 
+  void _showSnackBar(String text) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  // Future<void> _checkPass (Text pass, Text secondPass) async {
+  //   if(pass != secondPass){
+  //     _showSnackBar('Passwords do not match');
+  //   }
+  // }
+  Widget _passwordCheck() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40.0),
+      child: TextFormField(
+        controller: _controllerConfirmPassword,
+        obscureText: true,
+        decoration: const InputDecoration(
+          hintText: 'CONFIRM PASSWORD',
+        ),
+        validator: (String? value) {
+          if (value == null || value.isEmpty) {
+            return 'Please re-enter password';
+          }
+          if (_controllerPassword.text != _controllerConfirmPassword.text) {
+            return "Password does not match";
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _password(
+    String title,
+    TextEditingController controller,
+    TextEditingController controller2,
+    // String password,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 0),
+      child: SizedBox(
+        height: 70,
+        width: 300,
+        child: TextField(
+          controller: controller,
+          onChanged: (val) {
+            if (val == controller2.text) {
+              // _showSnackBar("Passwords don't match.");
+              setState(() {
+                isConfirmed = !isConfirmed;
+              });
+            } else {
+              _showSnackBar("Passwords don't match.");
+            }
+          },
+          decoration: InputDecoration(
+            hintText: title,
+            focusedBorder: UnderlineInputBorder(
+              borderSide:
+                  BorderSide(color: const Color.fromARGB(255, 4, 27, 63)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -404,9 +495,11 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Padding(padding: const EdgeInsets.only(bottom: 200)),
+              Padding(padding: const EdgeInsets.only(bottom: 250)),
               if (isLogin) ...[
+                // Padding(padding:)
                 _entryField('EMAIL', _controllerEmail),
+                // _email(_controllerEmail),
                 _entryField('PASSWORD', _controllerPassword),
                 // _errorMessage(),
                 _forgotPasswordLink(),
@@ -414,10 +507,27 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
                 _loginOrRegisterButton(),
               ] else ...[
                 _entryField('EMAIL', _controllerEmail),
+
                 _entryField('PASSWORD', _controllerPassword),
-                _entryField('CONFIRM PASSWORD', _controllerConfirmPassword),
-                // _errorMessage(),
+                FlutterPwValidator(
+                    width: 300,
+                    height: 100,
+                    minLength: 9,
+                    uppercaseCharCount: 1,
+                    specialCharCount: 1,
+                    numericCharCount: 2,
+                    onSuccess: () {},
+                    controller: _controllerPassword),
+                const SizedBox(
+                  height: 20,
+                ),
+                _passwordCheck(),
+//SWORD', _controllerConfirmPassword),
+                // if(isConfirmed)...[
                 _submitButton(),
+                // ],
+                // _submitButton(),
+
                 _loginOrRegisterButton(),
               ],
             ],
