@@ -25,10 +25,12 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
   final TextEditingController _controllerPassword = TextEditingController();
   final TextEditingController _controllerConfirmPassword =
       TextEditingController();
+  final TextEditingController _controllerPhysician = TextEditingController();
   final UnifiedAuthService _auth = UnifiedAuthService();
 
   String email = '';
   String password = '';
+  String physician = '';
   String firstName = '';
   String lastName = '';
   String phone = '';
@@ -149,7 +151,7 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
         // This belongs to the car logo.
         Positioned(
           top: 100.0,
-          right: 90,
+          right: 120,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -162,7 +164,7 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
                     ),
                     child: Image.asset(
                       'assets/images/road.png',
-                      height: 200,
+                      height: 150,
                     ),
                   ),
                 ),
@@ -178,7 +180,7 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     return Align(
       alignment: Alignment.center,
       child: Padding(
-        padding: const EdgeInsets.only(top: 320, left: 20, right: 20),
+        padding: const EdgeInsets.only(top: 275, left: 20, right: 20),
         child: Column(
           children: [
             Text(
@@ -206,7 +208,7 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     return Padding(
       padding: const EdgeInsets.only(left: 0),
       child: SizedBox(
-        height: 70,
+        height: 60,
         width: 300,
         child: TextField(
           controller: controller,
@@ -223,27 +225,30 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     );
   }
 
-  Widget _email(TextEditingController controller) {
+  Widget _passwordCheck() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: TextFormField(
-        decoration: const InputDecoration(
-          hintText: 'EMAIL ADDRESS',
-        ),
-        validator: (String? value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter an email';
-          }
-          // Check for a valid email format using a regular expression
-          if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
-              .hasMatch(value)) {
-            return 'Please enter a valid email address';
-          }
-          // controller = value;
-          return null; // Return null for valid input
-        },
-      ),
-    );
+        padding: const EdgeInsets.only(left: 0),
+        // padding: const EdgeInsets.symmetric(horizontal: 40.0),
+        child: SizedBox(
+          height: 60,
+          width: 300,
+          child: TextFormField(
+            controller: _controllerConfirmPassword,
+            obscureText: true,
+            decoration: const InputDecoration(
+              hintText: 'CONFIRM PASSWORD',
+            ),
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return 'Please re-enter password';
+              }
+              if (_controllerPassword.text != _controllerConfirmPassword.text) {
+                return "Password does not match";
+              }
+              return null;
+            },
+          ),
+        ));
   }
 
 // Displays link and calls UnifiedAuthService method to send reset email
@@ -285,8 +290,9 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
 
   Widget _submitButton() {
     return Padding(
-      padding: const EdgeInsets.only(top: 50, left: 25, right: 20),
+      padding: const EdgeInsets.only(left: 25, right: 20),
       child: SizedBox(
+        // return SizedBox(
         height: 50,
         width: 350,
         child: FilledButton(
@@ -313,14 +319,23 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
   Future<void> createUserWithEmailAndPassword() async {
     try {
       setState(() => isLoading = true);
-      AppUser? user = await _auth.registerUser(
+      AppUser? user = await _auth.registerPatient(
         email: _controllerEmail.text,
         password: _controllerPassword.text,
-        firstName: firstName,
-        lastName: lastName,
-        phone: phone,
-        clientId: clientId,
+        // firstName: firstName,
+        // lastName: lastName,
+        gender: "",
+        birthday: "",
+        physician: _controllerPhysician.text,
       );
+      // AppUser? user = await _auth.registerUser(
+      //   email: _controllerEmail.text,
+      //   password: _controllerPassword.text,
+      //   firstName: firstName,
+      //   lastName: lastName,
+      //   phone: phone,
+      //   clientId: clientId,
+      // );
       if (user != null) {
         String? deviceToken = await _auth.getDeviceTokenForUser(user.uid, true);
 
@@ -420,68 +435,6 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
-  // Future<void> _checkPass (Text pass, Text secondPass) async {
-  //   if(pass != secondPass){
-  //     _showSnackBar('Passwords do not match');
-  //   }
-  // }
-  Widget _passwordCheck() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: TextFormField(
-        controller: _controllerConfirmPassword,
-        obscureText: true,
-        decoration: const InputDecoration(
-          hintText: 'CONFIRM PASSWORD',
-        ),
-        validator: (String? value) {
-          if (value == null || value.isEmpty) {
-            return 'Please re-enter password';
-          }
-          if (_controllerPassword.text != _controllerConfirmPassword.text) {
-            return "Password does not match";
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _password(
-    String title,
-    TextEditingController controller,
-    TextEditingController controller2,
-    // String password,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 0),
-      child: SizedBox(
-        height: 70,
-        width: 300,
-        child: TextField(
-          controller: controller,
-          onChanged: (val) {
-            if (val == controller2.text) {
-              // _showSnackBar("Passwords don't match.");
-              setState(() {
-                isConfirmed = !isConfirmed;
-              });
-            } else {
-              _showSnackBar("Passwords don't match.");
-            }
-          },
-          decoration: InputDecoration(
-            hintText: title,
-            focusedBorder: UnderlineInputBorder(
-              borderSide:
-                  BorderSide(color: const Color.fromARGB(255, 4, 27, 63)),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -495,39 +448,39 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Padding(padding: const EdgeInsets.only(bottom: 250)),
+              // Padding(padding: const EdgeInsets.only(bottom: 300)),
               if (isLogin) ...[
+                Padding(padding: const EdgeInsets.only(bottom: 200)),
                 // Padding(padding:)
                 _entryField('EMAIL', _controllerEmail),
                 // _email(_controllerEmail),
                 _entryField('PASSWORD', _controllerPassword),
                 // _errorMessage(),
                 _forgotPasswordLink(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 50, left: 25, right: 20),
+                ),
                 _submitButton(),
                 _loginOrRegisterButton(),
               ] else ...[
+                Padding(padding: const EdgeInsets.only(bottom: 250)),
                 _entryField('EMAIL', _controllerEmail),
-
                 _entryField('PASSWORD', _controllerPassword),
                 FlutterPwValidator(
                     width: 300,
-                    height: 100,
-                    minLength: 9,
+                    height: 98,
+                    minLength: 8,
                     uppercaseCharCount: 1,
                     specialCharCount: 1,
                     numericCharCount: 2,
                     onSuccess: () {},
                     controller: _controllerPassword),
-                const SizedBox(
-                  height: 20,
-                ),
                 _passwordCheck(),
-//SWORD', _controllerConfirmPassword),
-                // if(isConfirmed)...[
+                _entryField('PHYSICIAN', _controllerPhysician),
+                Padding(
+                  padding: const EdgeInsets.only(top: 30, left: 25, right: 20),
+                ),
                 _submitButton(),
-                // ],
-                // _submitButton(),
-
                 _loginOrRegisterButton(),
               ],
             ],

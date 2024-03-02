@@ -155,30 +155,9 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
               : SizedBox.shrink(),
           Text(_getCurrentLocation()),
           _sizedBoxSpace,
-          // ElevatedButton(
-          //   onPressed: () async {
-          //     await _onPermissionsSDK();
-          //   },
-          //   child: const Text('Start Permission Wizard'),
-          // ),
+        
           _sizedBoxSpace,
-          // (_isAllRequiredPermissionsGranted !=isAllRequiredPermissionsAndSensorsGranted())
-          // if(!_isAllRequiredPermissionsGranted){
-
-          // },
-          // (Platform.isIOS)
-          //     ? Row(
-          //         children: [
-          //           Expanded(
-          //             child: const Text('Aggressive Heartbeats'),
-          //           ),
-          //           Switch.adaptive(
-          //               value: _isAggressiveHeartbeats,
-          //               onChanged:
-          //                   _isSdkEnabled ? _onAggressiveHeartbeats : null)
-          //         ],
-          //       )
-          //     : SizedBox.shrink(),
+          
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

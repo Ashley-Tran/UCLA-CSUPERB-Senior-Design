@@ -11,25 +11,27 @@ class TokenResponse {
 }
 
 class TelematicsService {
-final String instanceId = "ccfcceb5-c86d-4eea-8a76-e5aab2e89d21";
-    final String instanceKey = "ceee91a5-87f2-4ef5-836a-5a7922718d6e";
+// final String instanceId = "ccfcceb5-c86d-4eea-8a76-e5aab2e89d21";
+//     final String instanceKey = "ceee91a5-87f2-4ef5-836a-5a7922718d6e";
+
+  final String instanceId = "ee050880-86db-4502-9e82-366da9e3d4de";
+  final String instanceKey = "b0fafb2a-bd86-408e-87f5-cce93619be2c";
 
   Future<TokenResponse> registerUser({
-    required String firstName,
-    required String lastName,
-    required String phone,
+    // required String firstName,
+    // required String lastName,
+    // required String phone,
     required String email,
-    required String clientId,
+    // required String clientId,
   }) async {
-    
     const String url = "https://user.telematicssdk.com/v1/Registration/create";
 
     var body = jsonEncode({
-      "FirstName": firstName,
-      "LastName": lastName,
-      "Phone": phone,
+      // "FirstName": firstName,
+      // "LastName": lastName,
+      // "Phone": phone,
       "Email": email,
-      "UserFields": {"ClientId": clientId},
+      // "UserFields": {"ClientId": clientId},
     });
     try {
       var response = await http.post(
@@ -90,7 +92,8 @@ final String instanceId = "ccfcceb5-c86d-4eea-8a76-e5aab2e89d21";
     } else {
       // Handle error or invalid response
       print("Login failed: ${response.body}");
-      throw Exception('Failed to login with device token: ${response.statusCode}');
+      throw Exception(
+          'Failed to login with device token: ${response.statusCode}');
     }
   }
 
