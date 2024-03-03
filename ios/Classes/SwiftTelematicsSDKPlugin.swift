@@ -115,6 +115,28 @@ public class SwiftTelematicsSDKPlugin: NSObject, FlutterPlugin, RPLowPowerModeDe
         }
     }
     
+    // private func triggerNotification(forEvent event: RPEventPoint) {
+    //     if event.type == "SpecificEventType" {
+    //         let content = UNMutableNotificationContent()
+    //         content.title = "New Event Notification"
+    //         content.subtitle = "A new event of type \(event.type) has occurred"
+    //         content.sound = UNNotificationSound.default
+            
+    //         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+    //         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+    //         UNUserNotificationCenter.current().add(request)
+    //     }
+    // }
+    
+    // private func onNewEvents(_ events: NSMutableArray!) {
+    //     for item in events {
+    //         if let event = item as? RPEventPoint {
+    //             NSLog("event id = %@ type = %@", event.theId, event.type)
+    //             triggerNotification(forEvent: event)
+    //         }
+    //     }
+    // }
+
     private func clearDeviceID(_ result: @escaping FlutterResult) {
         RPEntry.instance().removeVirtualDeviceToken()
         

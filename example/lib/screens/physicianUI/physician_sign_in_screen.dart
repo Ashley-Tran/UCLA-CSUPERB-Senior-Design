@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:telematics_sdk_example/services/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:telematics_sdk_example/screens/patientUI/patient_home_screen.dart';
+import 'package:telematics_sdk_example/screens/physicianUI/physician_home_screen.dart';
 import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
-
+import 'package:telematics_sdk_example/screens/physicianUI/test_screen.dart';
 
 class PhysicianSignInScreen extends StatefulWidget {
   const PhysicianSignInScreen({Key? key}) : super(key: key);
@@ -152,7 +152,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
         // This belongs to the car logo.
         Positioned(
           top: 100.0,
-          right: 90,
+          right: 120,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -165,7 +165,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
                     ),
                     child: Image.asset(
                       'assets/images/road.png',
-                      height: 200,
+                      height: 150,
                     ),
                   ),
                 ),
@@ -181,7 +181,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     return Align(
       alignment: Alignment.center,
       child: Padding(
-        padding: const EdgeInsets.only(top: 320, left: 20, right: 20),
+        padding: const EdgeInsets.only(top: 275, left: 20, right: 20),
         child: Column(
           children: [
             Text(
@@ -209,7 +209,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     return Padding(
       padding: const EdgeInsets.only(left: 0),
       child: SizedBox(
-        height: 70,
+        height: 45,
         width: 300,
         child: TextField(
           controller: controller,
@@ -265,7 +265,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
 
   Widget _submitButton() {
     return Padding(
-      padding: const EdgeInsets.only(top: 50, left: 25, right: 20),
+      padding: const EdgeInsets.only(top: 30, left: 25, right: 20),
       child: SizedBox(
         height: 50,
         width: 350,
@@ -299,14 +299,18 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
         firstName: _controllerFirstName.text,
         lastName: _controllerLastName.text,
         phone: _controllerPhone.text,
-        NIP: _controllerNIP.text,
+        NPI: _controllerNIP.text,
         OrgName: _controllerOrgName.text,
       );
       if (user != null) {
         if (!mounted) return;
 
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => PatientHomeScreen()));
+            MaterialPageRoute(builder: (context) => PhysicianHomeScreen()));
+
+
+//  Navigator.of(context).pushReplacement(
+//             MaterialPageRoute(builder: (context) => TestPage()));
 
         // Stop loading
         setState(() => isLoading = false);
@@ -333,7 +337,9 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
         if (!mounted) return;
 
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => PatientHomeScreen()));
+            MaterialPageRoute(builder: (context) => PhysicianHomeScreen()));
+// Navigator.of(context).pushReplacement(
+//             MaterialPageRoute(builder: (context) => TestPage()));
 
         //   // Stop loading
         setState(() => isLoading = false);
@@ -377,7 +383,6 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // BackButton(),
           _decoration(),
           _loginHeader(),
           Column(
@@ -385,21 +390,30 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Padding(padding: const EdgeInsets.only(bottom: 200)),
+              // Padding(padding: const EdgeInsets.only(bottom: 200)),
               if (isLogin) ...[
+                Padding(padding: const EdgeInsets.only(bottom: 200)),
                 _entryField('EMAIL', _controllerEmail),
+                 Padding(
+                  padding: const EdgeInsets.only(top: 20, left: 25, right: 20),
+                ),
                 _entryField('PASSWORD', _controllerPassword),
                 _forgotPasswordLink(),
+                 Padding(
+                  padding: const EdgeInsets.only(top: 50, left: 25, right: 20),
+                ),
+                // Padding(padding: const EdgeInsets.only(bottom: 50)),
                 _submitButton(),
                 _loginOrRegisterButton(),
               ] else ...[
+                Padding(padding: const EdgeInsets.only(bottom: 235)),
                 _entryField('EMAIL', _controllerEmail),
                 _entryField('PASSWORD', _controllerPassword),
                 _entryField('CONFIRM PASSWORD', _controllerConfirmPassword),
                 _entryField('FIRST NAME', _controllerFirstName),
                 _entryField('LAST NAME', _controllerLastName),
                 _entryField('PHONE', _controllerPhone),
-                _entryField('NIP', _controllerNIP),
+                _entryField('NPI', _controllerNIP),
                 _entryField('ORG. NAME', _controllerOrgName),
                 _submitButton(),
                 _loginOrRegisterButton(),

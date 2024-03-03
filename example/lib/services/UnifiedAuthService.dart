@@ -198,9 +198,7 @@ class UnifiedAuthService {
     return null;
   }
 
-
-
- Future<String?> getPhysician(String? uid) async {
+  Future<String?> getPhysician(String? uid) async {
     if (uid == null) {
       print("UID is null. Cannot retrieve Physician.");
       return null;
@@ -230,6 +228,8 @@ class UnifiedAuthService {
 
     return null;
   }
+
+  // Future<void>
 
   // Method to login to Damoov
   Future<void> login(String? userId) async {
@@ -317,9 +317,9 @@ class UnifiedAuthService {
 
   // Future<String> getBirthday() async {
   //    User? user = _auth.currentUser;
-  //   // String birthday; 
+  //   // String birthday;
   //    if (user != null) {
-  //     await 
+  //     await
   //      _database
   //         .ref('patients/${user.uid}/birthday').get();
   //         // .get({'birthday'});
@@ -342,6 +342,52 @@ class UnifiedAuthService {
       print("No user is currently signed in.");
     }
   }
+
+
+Future<String> fetchSummarySafetyScore(
+      String startDate, String endDate, String authToken) async {
+    var client = http.Client();
+    String statistics = '';
+    try {
+      var url = Uri.parse(
+              'https://api.telematicssdk.com/indicators/v2/Scores/safety')
+          .replace(queryParameters: {
+        'StartDate': startDate,
+        'EndDate': endDate,
+      });
+
+      final response = await client.get(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // if(response.result)
+         Map<String, dynamic> data = jsonDecode(response.body);
+        if(data["Result"] != null){
+          statistics = data["Result"]["SafetyScore"].toString();
+        }
+        else{
+          statistics = "n/a";
+        }
+        // statistics = data["Result"]["SafetyScore"].toString();
+          // statistics = response.jsonDecode(response);
+      //  statistics = response.headersSplitValues;
+      } else {
+        print(
+            'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching daily statistics: $e');
+    } finally {
+      client.close();
+    }
+    return statistics;
+  }
+
 
   // Method to initialize and start tracking with the given device token
   Future<void> initializeAndStartTracking(String deviceToken) async {

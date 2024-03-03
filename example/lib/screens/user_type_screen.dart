@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:telematics_sdk_example/screens/patientUI/sign_in_screen.dart';
 import 'package:telematics_sdk_example/screens/patientUI/patient_home_screen.dart';
+import 'package:telematics_sdk_example/screens/physicianUI/physician_sign_in_screen.dart';
+
 const _sizedBoxSpace = SizedBox(height: 50);
 
 class UserTypePage extends StatelessWidget {
@@ -29,7 +31,7 @@ class UserTypePage extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => PatientHomeScreen()));
+                                builder: (context) => PhysicianSignInScreen()));
                       },
                       style: FilledButton.styleFrom(
                         backgroundColor: (Color.fromARGB(255, 4, 27, 63)),
