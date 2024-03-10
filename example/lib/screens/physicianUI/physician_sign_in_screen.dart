@@ -298,9 +298,9 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
         password: _controllerPassword.text,
         firstName: _controllerFirstName.text,
         lastName: _controllerLastName.text,
+        npi: _controllerNIP.text,
+        organizationName: _controllerOrgName.text,
         phone: _controllerPhone.text,
-        NPI: _controllerNIP.text,
-        OrgName: _controllerOrgName.text,
       );
       if (user != null) {
         if (!mounted) return;

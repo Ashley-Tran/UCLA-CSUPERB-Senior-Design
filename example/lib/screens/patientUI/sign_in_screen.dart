@@ -35,6 +35,32 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
   String lastName = '';
   String phone = '';
   String clientId = '';
+  String? physicianUid;
+  List<DropdownMenuItem<String>> physicianItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    physicianUid = null;
+    loadPhysicians();
+    // anonymousSignInAndLoadPhysicians();
+    // birthday = DateFormat.yMd().format(DateTime.now());
+  }
+
+  void loadPhysicians() async {
+    try {
+      var items = await _auth.getPhysicianDropdownItems();
+      setState(() {
+        physicianItems = items;
+        if (items.isNotEmpty && physicianUid == null) {
+          physicianUid = items.first.value;
+        }
+        print(physicianItems);
+      });
+    } catch (e) {
+      print("Error loading physicians: $e");
+    }
+  }
 
   Widget _decoration() {
     return Stack(
@@ -327,15 +353,9 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
         gender: "",
         birthday: "",
         physician: _controllerPhysician.text,
+        physicianID: physicianUid!,
       );
-      // AppUser? user = await _auth.registerUser(
-      //   email: _controllerEmail.text,
-      //   password: _controllerPassword.text,
-      //   firstName: firstName,
-      //   lastName: lastName,
-      //   phone: phone,
-      //   clientId: clientId,
-      // );
+      
       if (user != null) {
         String? deviceToken = await _auth.getDeviceTokenForUser(user.uid, true);
 
@@ -476,7 +496,28 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
                     onSuccess: () {},
                     controller: _controllerPassword),
                 _passwordCheck(),
-                _entryField('PHYSICIAN', _controllerPhysician),
+
+                DropdownButtonFormField<String>(
+                  padding: EdgeInsets.symmetric(horizontal: 40),
+                  value: physicianUid,
+                  hint: const Text('SELECT PHYSICIAN'),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      physicianUid = newValue ?? '';
+                      physician = physicianItems
+                          .firstWhere((item) => item.value == newValue,
+                              orElse: () => DropdownMenuItem<String>(
+                                  value: '', child: Text('')))
+                          .child
+                          .toString();
+                    });
+                  },
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? 'Please select your physician'
+                      : null,
+                  items: physicianItems,
+                ),
+                // _entryField('PHYSICIAN', _controllerPhysician),
                 Padding(
                   padding: const EdgeInsets.only(top: 30, left: 25, right: 20),
                 ),

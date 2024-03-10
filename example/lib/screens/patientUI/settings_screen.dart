@@ -142,6 +142,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: TextStyle(color: Colors.red, fontSize: 18)),
             onTap: () async {
               await _trackingApi.clearDeviceID();
+              
+              // new 
+              await _trackingApi.setEnableSdk(enable: false);
+              await _trackingApi.setDisableTracking(value: true);
+
               await FirebaseAuth.instance.signOut();
               Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => WelcomeScreen()));

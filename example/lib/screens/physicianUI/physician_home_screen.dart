@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
+import 'package:telematics_sdk_example/screens/physicianUI/patient_display_screen.dart';
 
 import 'package:telematics_sdk_example/screens/physicianUI/physician_settings_screen.dart';
 import 'package:telematics_sdk_example/screens/patientUI/tutorial_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 const _sizedBoxSpace = SizedBox(height: 24);
 
@@ -19,17 +21,47 @@ class PhysicianHomeScreen extends StatefulWidget {
 
 class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
   String docName = "";
+  User? currentUser = FirebaseAuth.instance.currentUser;
+  final UnifiedAuthService _auth = UnifiedAuthService();
+
+  Map<String, String> patientList = {};
+  List<String> summaryScores = [];
+//  Map<String, String> summaryScores = {};
   @override
   void initState() {
     super.initState();
-
-    initPlatformState();
+    loadPatients();
+    // _listItems();
   }
 
   String patients = "";
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    setState(() {});
+  String summaryScore = "";
+
+  void loadPatients() async {
+    try {
+      var items = await _auth.getPatients();
+      setState(() {
+        patientList = items;
+
+        if (items.isNotEmpty) {
+          patientList.forEach((key, value) async {
+            print(key);
+            print(value);
+            summaryScore = await _auth.fetchSummarySafetyScore(
+                "2024-01-01", "2024-10-10", value);
+            // if(summaryScore.isNotEmpty){
+            //      summaryScores.add(summaryScore);
+            // }
+            // summaryScores[key] = summaryScore;
+            // summaryScores.addEntries(key, (value) => summaryScore);
+            // print(summaryScore);
+            summaryScores.add(summaryScore);
+          });
+        }
+      });
+    } catch (e) {
+      print("Error loading patients: $e");
+    }
   }
 
   int _selectedIndex = 0;
@@ -41,33 +73,6 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
             context, MaterialPageRoute(builder: (context) => SettingsScreen()));
       }
     });
-  }
-
-  Widget _logo() {
-    // return Positioned(
-    // top: 100.0,
-    // right: 90,
-    // child:
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            child: ColorFiltered(
-              colorFilter: const ColorFilter.mode(
-                Color.fromARGB(255, 103, 139, 183),
-                BlendMode.srcIn,
-              ),
-              child: Image.asset(
-                'assets/images/road.png',
-                height: 200,
-              ),
-            ),
-          ),
-        ],
-      ),
-      // ),
-    );
   }
 
   Widget _bottomNav() {
@@ -88,144 +93,48 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
     );
   }
 
-  List<String> _testKeys = [];
-  List<String> _realKeys = [];
-  Future<List<String>> _getPatientList() async {
-    List<String> _listKeys = [];
-    FirebaseDatabase.instance.ref('patients').get().then((snapshot) {
-      if (snapshot.exists) {
-        // Grabs all patients user ids
-        Map<dynamic, dynamic> values = snapshot.value as Map<dynamic, dynamic>;
-        values.forEach((key, value) {
-          _listKeys.add(key);
-        });
+  List<ListTile> patientsAndScores = [];
+
+  List<ListTile> _listItems() {
+    List<ListTile> list = [];
+    ListTile tile;
+    int index = 0;
+    patientList.forEach((key, value) {
+      double s = double.parse(summaryScores[index]);
+      print(s);
+      if (s >= 80 && s < 101) {
+        tile = new ListTile(
+            tileColor: Color.fromARGB(255, 68, 125, 171),
+            title: Text(key),
+            subtitle: Text("Summary Score: " + summaryScores[index]),
+            onTap:(){
+              Navigator.of(context).push(MaterialPageRoute(builder:(context)=>PatientDisplayScreen(value)));
+            },
+            shape: Border(
+              bottom: BorderSide(color: Colors.black),
+            ));
+        list.add(tile);
+      } else if (s >= 60 && s < 80) {
+        tile = new ListTile(
+            tileColor: Color.fromARGB(255, 106, 121, 134),
+            title: Text(key),
+            subtitle: Text("Summary Score: " + summaryScores[index]),
+            shape: Border(
+              bottom: BorderSide(color: Colors.black),
+            ));
+        list.add(tile);
       } else {
-        print("None found");
+        ListTile tile = new ListTile(
+            tileColor: Color.fromARGB(255, 249, 0, 0),
+            title: Text(key),
+            subtitle: Text("Summary Score: " + summaryScores[index]),
+            shape: Border(bottom: BorderSide(color: Colors.black)));
+        list.add(tile);
       }
-      setState(() {
-        _testKeys = _listKeys;
-      });
+      index++;
     });
-
-    for (var key in _testKeys) {
-      final ref = FirebaseDatabase.instance.ref();
-      DatabaseEvent event = await ref.child('patients/${key}/physician').once();
-      // final snapshot = await ref.child('patients/${key}/physician').get();
-      if (event.snapshot.exists) {
-        // Iterate through all user ids & find those that match physician
-        if (event.snapshot.value.toString() == "Test Doc") {
-          String newKey = key;
-          _realKeys.add(newKey);
-          setState(() {});
-        }
-      }
-    }
-    return _listKeys;
+    return list;
   }
-
-  String _summarySafetyScore = 'Loading...';
-  List<String> summaryScores = [];
-  final UnifiedAuthService _auth = UnifiedAuthService();
-  Future<void> _fetchSummarySafetyScore(String userID) async {
-    try {
-      DatabaseEvent event = await FirebaseDatabase.instance
-          .ref("patients/${userID}/accessToken")
-          .once();
-
-      // final snapshot = await FirebaseDatabase.instance
-      //     .ref("patients/${userID}/accessToken")
-      //     .get();
-
-      String? accessToken = event.snapshot.value.toString();
-      // String? accessToken = snapshot.value.toString();
-
-      String startDate = "2024-01-01";
-      String endDate = "2024-03-24";
-
-      String statistics =
-          await _auth.fetchSummarySafetyScore(startDate, endDate, accessToken);
-      setState(() {
-        summaryScores.add(statistics);
-      });
-    } catch (e) {
-      setState(() {
-        _summarySafetyScore = 'Error fetching statistics: $e';
-      });
-    }
-  }
-
-  Widget _patientList() {
-    if (_realKeys.isEmpty) {
-      _getPatientList();
-    }
-
-    // Get all distinct items for patients of the physician
-    _realKeys = _realKeys.toSet().toList();
-
-    // //TEST
-    if (summaryScores.length < _realKeys.length) {
-      for (var k in _realKeys) {
-        if (summaryScores.length != _realKeys.length) {
-          _fetchSummarySafetyScore(k);
-        }
-        // _fetchSummarySafetyScore(k);
-      }
-    }
-
-    summaryScores = summaryScores.toSet().toList();
-    print(summaryScores);
-    print(_realKeys);
-    while (_realKeys.length > summaryScores.length) {
-      summaryScores.add("0");
-    }
-    print(summaryScores);
-    print(_realKeys);
-    final list = Map.fromIterables(_realKeys, summaryScores);
-    // summaryScores[0] = "0";
-    return Column(
-      children: <Widget>[
-        // Padding(padding: EdgeInsets.only(bottom: 10, top: 10),),
-        // for (var k in _realKeys)
-        for (int i = 0; i < _realKeys.length; i++)
-          ListTile(
-            // contentPadding: ,
-            shape: RoundedRectangleBorder(
-              side: BorderSide(color: Colors.black, width: 1),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            tileColor: Color.fromARGB(255, 10, 65, 111),
-            textColor: Colors.white,
-
-            title: Text(_realKeys.elementAt(i), style: TextStyle(color: Colors.blue)),
-            subtitle: Text("    Accumulated Safety Score: " + summaryScores.elementAt(i)),
-          )
-        // else if (int.parse(summaryScores[i]) <= 70)
-        //   ListTile(
-        //     tileColor: Color.fromARGB(255, 26, 123, 202),
-        //     title: Text(_realKeys.elementAt(i)),
-        //     subtitle: Text("Safety Score: " + summaryScores.elementAt(i)),
-        //   )
-        ,
-        Padding(
-          padding: EdgeInsets.only(bottom: 10, top: 10),
-        ),
-      ],
-    );
-    // return Text(_realKeys.elementAt(0) + " " + _realKeys.elementAt(1));
-  }
-
-  // Widget _testlist(){
-  // print(summaryScores);
-  // print(_realKeys);
-  //  final children = <Widget>[];
-  //   for(var i = 0; i < _realKeys.length; i++){
-  //         children.add(ListTile(
-  //           title: Text(_realKeys.elementAt(i)),
-  //           subtitle: Text(summaryScores.elementAt(i))
-  //         ));
-  //       }
-  //       return new ListView(children:children);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -249,15 +158,9 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
                   Navigator.of(context).push(TutorialHome());
                 },
               ),
-              // _patientList(),
-              // Text()
             ],
           ),
-          // Padding(padding: EdgeInsets.only(top: 30)),
-          // _logo(),
-          _patientList(),
-          // _testlist(),
-
+          Column(children: _listItems()),
           _sizedBoxSpace,
           _sizedBoxSpace,
         ],

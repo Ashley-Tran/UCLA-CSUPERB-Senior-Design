@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:telematics_sdk_example/services/user.dart';
 import 'package:telematics_sdk_example/services/telematics_service.dart';
@@ -69,11 +69,10 @@ class UnifiedAuthService {
   Future<AppUser?> registerPatient(
       {required String email,
       required String password,
-      // required String firstName,
-      // required String lastName,
       required String gender,
       required String birthday,
-      required String physician}) async {
+      required String physician,
+      required String physicianID}) async {
     try {
       // Firebase Authentication to create user
       UserCredential result = await _auth.createUserWithEmailAndPassword(
@@ -84,10 +83,8 @@ class UnifiedAuthService {
 
       // Register user in telematics system
       TokenResponse tokenResponse = await _telematicsService.registerUser(
-        // firstName: firstName,
-        // lastName: lastName,
+        // firstName: "",
         email: email,
-        // phone: phone
       );
 
       // Store telematics tokens and username in Firebase database linked to the user's UID
@@ -99,7 +96,8 @@ class UnifiedAuthService {
           'gender': gender,
           'birthday': birthday,
           'email': email,
-          'physician': physician
+          'physician': physician,
+          'physicianID': physicianID
         });
       }
 
@@ -110,14 +108,134 @@ class UnifiedAuthService {
     }
   }
 
+  late final String? selectedPhysicianUid;
+
+  Future<List<DropdownMenuItem<String>>> getPhysicianDropdownItems() async {
+    List<DropdownMenuItem<String>> items = [];
+    DatabaseReference ref = FirebaseDatabase.instance.ref('physicians');
+
+    // Only proceed if the user is authenticated
+    // User? currentUser = FirebaseAuth.instance.currentUser;
+    // if (currentUser != null) {
+    try {
+      DatabaseEvent event = await ref.once();
+      Map<dynamic, dynamic> physicians =
+          event.snapshot.value as Map<dynamic, dynamic>;
+      physicians.forEach((key, value) {
+        String fullName = '${value['firstName']} ${value['lastName']}';
+        items.add(
+          DropdownMenuItem(
+            value: key,
+            child: Text(fullName),
+          ),
+        );
+      });
+    } catch (e) {
+      print(e.toString());
+      // Handle errors or return an empty list
+    }
+    // } else {
+    //   // Handle the case where the user is not authenticated
+    // }
+    return items;
+  }
+
+  Future<List<DropdownMenuItem<String>>> getPhysicianDropdownMenu(
+      String currentPhysicianId) async {
+    List<DropdownMenuItem<String>> items = [];
+    DatabaseReference ref = FirebaseDatabase.instance.ref('physicians');
+
+    // Only proceed if the user is authenticated
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      try {
+        DatabaseEvent event = await ref.once();
+        Map<dynamic, dynamic> physicians =
+            event.snapshot.value as Map<dynamic, dynamic>;
+        physicians.forEach((key, value) {
+          String firstName = value['firstName'] ?? '';
+          String lastName = value['lastName'] ?? '';
+          String fullName = '$firstName $lastName'.trim();
+          items.add(
+            DropdownMenuItem(
+              value: key,
+              child: Text(fullName),
+            ),
+          );
+        });
+
+        // Find the currently selected physician's UID and set it
+        selectedPhysicianUid = currentPhysicianId;
+      } catch (e) {
+        print(e.toString());
+      }
+    } else {
+      print('No authenticated user found.');
+    }
+
+    return items;
+  }
+
+  Future<Map<String, String>> getPatients() async {
+    //  List<String> ids = [];
+    List<String> emails = [];
+    List<String> accessTokens = [];
+    // List<String> scores = [];
+    Map<String, String> patientList = <String, String>{};
+
+    DatabaseReference ref = FirebaseDatabase.instance.ref('patients');
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      String uid = currentUser.uid;
+      try {
+        DatabaseEvent event = await ref.once();
+        Map<dynamic, dynamic> patients =
+            event.snapshot.value as Map<dynamic, dynamic>;
+
+        // patients.forEach((key, value) {
+        patients.forEach((key, value) async {
+          // String fullName = '${value['firstName']} ${value['lastName']}';
+          // String patientID = '$key';
+          String patientAT = '${value['accessToken']}';
+          String patientEmail = '${value['email']}';
+          // String score = await fetchSummarySafetyScore(
+          //     "2024-01-01", "2024-10-10", value);
+          if ('${value['physicianID']}' == uid) {
+            // print(patientID);
+            //    print(patientEmail);
+            // ids.add(patientID);
+            // scores.add(score);
+            accessTokens.add(patientAT);
+            emails.add(patientEmail);
+          }
+        });
+
+        // patientList = Map.fromIterables(scores, accessTokens);
+
+        patientList = Map.fromIterables(emails, accessTokens);
+
+        // patientList = Map.fromIterables(ids, accessTokens);
+        //  patientList = Map.fromIterables(ids, emails);
+      } catch (e) {
+        print(e.toString());
+        // Handle errors or return an empty list
+      }
+    } else {
+      // Handle the case where the user is not authenticated
+    }
+
+    return patientList;
+  }
+
   Future<AppUser?> registerPhysician({
     required String email,
     required String password,
     required String firstName,
     required String lastName,
+    required String npi,
+    required String organizationName,
     required String phone,
-    required String NPI,
-    required String OrgName,
   }) async {
     try {
       // Firebase Authentication to create user
@@ -130,11 +248,12 @@ class UnifiedAuthService {
       // Store telematics tokens and username in Firebase database linked to the user's UID
       if (firebaseUser != null) {
         await _database.ref('physicians/${firebaseUser.uid}').set({
-          'First Name': firstName,
-          'Last Name': lastName,
+          'email': email,
+          'firstName': firstName,
+          'lastName': lastName,
+          'npi': npi,
+          'organizationName': organizationName,
           'phone': phone,
-          'NPI': NPI,
-          'OrgName': OrgName
         });
       }
 
@@ -158,7 +277,6 @@ class UnifiedAuthService {
     }
   }
 
-// getToke()
   // Get Device token (Firebase side)
   Future<String?> getDeviceTokenForUser(String? uid, bool isNewUser) async {
     if (uid == null) {
@@ -343,15 +461,14 @@ class UnifiedAuthService {
     }
   }
 
-
-Future<String> fetchSummarySafetyScore(
+  Future<String> fetchSummarySafetyScore(
       String startDate, String endDate, String authToken) async {
     var client = http.Client();
     String statistics = '';
     try {
-      var url = Uri.parse(
-              'https://api.telematicssdk.com/indicators/v2/Scores/safety')
-          .replace(queryParameters: {
+      var url =
+          Uri.parse('https://api.telematicssdk.com/indicators/v2/Scores/safety')
+              .replace(queryParameters: {
         'StartDate': startDate,
         'EndDate': endDate,
       });
@@ -363,19 +480,13 @@ Future<String> fetchSummarySafetyScore(
           'authorization': 'Bearer $authToken',
         },
       );
-
       if (response.statusCode == 200) {
-        // if(response.result)
-         Map<String, dynamic> data = jsonDecode(response.body);
-        if(data["Result"] != null){
+        Map<String, dynamic> data = jsonDecode(response.body);
+        if (data["Result"] != null) {
           statistics = data["Result"]["SafetyScore"].toString();
-        }
-        else{
+        } else {
           statistics = "n/a";
         }
-        // statistics = data["Result"]["SafetyScore"].toString();
-          // statistics = response.jsonDecode(response);
-      //  statistics = response.headersSplitValues;
       } else {
         print(
             'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
@@ -388,6 +499,102 @@ Future<String> fetchSummarySafetyScore(
     return statistics;
   }
 
+  // accumulated totals
+  Future<List<String>> fetchStatistics(String authToken) async {
+    var client = http.Client();
+
+    List<String> statistics = [];
+    String tripCount = "";
+    String totalMiles = "";
+    String drivingTime = "";
+    try {
+      var url = Uri.parse(
+          'https://api.telematicssdk.com/indicators/v2/statistics?startDate=2024-01-31&endDate=2024-12-31');
+      final response = await client.get(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        if (data["Result"] != null) {
+          tripCount = data["Result"]["DriverTripsCount"].toString();
+          totalMiles = data["Result"]["MileageMile"].toString();
+          drivingTime = data["Result"]["DrivingTime"].toString();
+        } else {
+          tripCount = "n/a";
+          totalMiles = "n/a";
+          drivingTime = "n/a";
+        }
+        statistics.add(tripCount);
+        statistics.add(totalMiles);
+        statistics.add(drivingTime);
+      } else {
+        print(
+            'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching daily statistics: $e');
+    } finally {
+      client.close();
+    }
+    return statistics;
+  }
+
+  // accumulated scores
+  Future<List<String>> fetchScores(String authToken) async {
+    var client = http.Client();
+    List<String> scores = [];
+    String accelerationScore = "";
+    String brakingScore = "";
+    String speedingScore = "";
+    String corneringScore = "";
+    String phoneScore = "";
+    try {
+      var url = Uri.parse(
+          'https://api.telematicssdk.com/indicators/v2/Scores/safety?startDate=2024-01-31&endDate=2024-12-31');
+
+      final response = await client.get(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'authorization': 'Bearer $authToken',
+        },
+      );
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        if (data["Result"] != null) {
+          accelerationScore = data["Result"]["AccelerationScore"].toString();
+          brakingScore = data["Result"]["BrakingScore"].toString();
+          speedingScore = data["Result"]["SpeedingScore"].toString();
+          corneringScore = data["Result"]["CorneringScore"].toString();
+          phoneScore = data["Result"]["PhoneUsageScore"].toString();
+        } else {
+          accelerationScore = "n/a";
+          brakingScore = "n/a";
+          speedingScore = "n/a";
+          corneringScore = "n/a";
+          phoneScore = "n/a";
+        }
+        scores.add(accelerationScore);
+              scores.add(brakingScore);
+                    scores.add(speedingScore);
+                          scores.add(corneringScore);
+                                scores.add(phoneScore);
+      } else {
+        print(
+            'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching daily statistics: $e');
+    } finally {
+      client.close();
+    }
+    return scores;
+  }
 
   // Method to initialize and start tracking with the given device token
   Future<void> initializeAndStartTracking(String deviceToken) async {
