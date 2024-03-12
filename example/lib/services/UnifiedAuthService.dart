@@ -580,10 +580,10 @@ class UnifiedAuthService {
           phoneScore = "n/a";
         }
         scores.add(accelerationScore);
-              scores.add(brakingScore);
-                    scores.add(speedingScore);
-                          scores.add(corneringScore);
-                                scores.add(phoneScore);
+        scores.add(brakingScore);
+        scores.add(speedingScore);
+        scores.add(corneringScore);
+        scores.add(phoneScore);
       } else {
         print(
             'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
@@ -594,6 +594,149 @@ class UnifiedAuthService {
       client.close();
     }
     return scores;
+  }
+
+  Future<List<List<String>>> fetchTrips(String authToken, int tripCount) async {
+    List<List<String>> trips = [];
+    List<String> startDates = [];
+    List<String> endDates = [];
+    List<String> locations = [];
+    List<String> mileages = [];
+
+    List<String> driveDuration = [];
+    List<String> avgSpeeds = [];
+    List<String> scores = [];
+    String startTime = "";
+    String endTime = "";
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://api.telematicssdk.com/trips/get/v1/'),
+        headers: {
+          'accept': 'application/json',
+          'content-type': 'application/json',
+          'authorization': 'Bearer $authToken'
+        },
+        body: jsonEncode({
+          'StartDate': '2024-01-20T09:46:59.265Z',
+          'EndDate': '2024-09-20T09:46:59.265Z',
+          'IncludeDetails': true,
+          'IncludeStatistics': true,
+          'IncludeScores': true,
+          'Locale': 'EN',
+          'UnitSystem': 'Si',
+          'SortBy': 'StartDateUtc',
+          'Paging': {'Page': 1, 'Count': 10, 'IncludePagingInfo': true}
+        }),
+      );
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        if (data["Result"] != null) {
+          for (int i = 0; i < tripCount; i++) {
+            List<String> rawStartDate = data["Result"]['Trips'][i]['Data']
+                    ['StartDate']
+                .toString()
+                .split("T");
+            List<String> t = rawStartDate[1].split("-");
+
+            int startHour = int.parse(t[0].substring(0, 2));
+            if (startHour > 12) {
+              startHour = startHour - 12;
+              startTime = rawStartDate[0].substring(5, 7) +
+                  "-" +
+                  rawStartDate[0].substring(8, 10) +
+                  "-" +
+                  rawStartDate[0].substring(0, 4) +
+                  " " +
+                  startHour.toString() +
+                  t[0].substring(2, 8) +
+                  " PM";
+            } else {
+              startTime = rawStartDate[0].substring(5, 7) +
+                  "-" +
+                  rawStartDate[0].substring(8, 10) +
+                  "-" +
+                  rawStartDate[0].substring(0, 4) +
+                  " " +
+                  startHour.toString() +
+                  t[0].substring(2, 8) +
+                  " AM";
+            }
+
+            startDates.add(startTime);
+
+            //  List<String> rawEndDate = data["Result"]['Trips'][i]['Data']['EndDate']
+            //     .toString()
+            //     .split("T");
+            //     print(rawEndDate[1]);
+            // List<String> endT = rawEndDate[1].split("-");
+            // int endHour = int.parse(endT[0].substring(0, 2));
+            // // print(endHour);
+            // if (endHour > 12) {
+            //   endHour = endHour- 12;
+            //   endTime = rawEndDate[0].substring(5, 7) +
+            //       "-" +
+            //       rawEndDate[0].substring(8, 10) +
+            //       "-" +
+            //       rawEndDate[0].substring(0, 4) +
+            //       " " +
+            //       endHour.toString() +
+            //       t[0].substring(2, 8) +
+            //       " PM";
+            // } else {
+            //   endTime = rawEndDate[0].substring(5, 7) +
+            //       "-" +
+            //       rawEndDate[0].substring(8, 10) +
+            //       "-" +
+            //       rawEndDate[0].substring(0, 4) +
+            //       " " +
+            //       endHour.toString() +
+            //       t[0].substring(2, 8) +
+            //       " AM";
+            // }
+            // print(endTime);
+            // endDates.add(endTime);
+
+            endDates.add("End Date: " +
+                data["Result"]['Trips'][i]['Data']['EndDate'].toString());
+
+            locations.add(data["Result"]['Trips'][i]['Data']['Addresses']
+                        ['Start']['Full']
+                    .toString() +
+                " to " +
+                data["Result"]['Trips'][i]['Data']['Addresses']['End']['Full']
+                    .toString());
+
+            mileages.add("Mileage (km/h): " +
+                data["Result"]['Trips'][i]['Statistics']['Mileage'].toString());
+            driveDuration.add("Duration of Drive (min): " +
+                data["Result"]['Trips'][i]['Statistics']['DurationMinutes']
+                    .toString());
+            avgSpeeds.add("Average Speed: " +
+                data["Result"]['Trips'][i]['Statistics']['AverageSpeed']
+                    .toString());
+            scores.add(
+                "Scores: " + data["Result"]['Trips'][i]['Scores'].toString());
+          }
+        }
+        trips.add(startDates);
+        trips.add(endDates);
+        trips.add(locations);
+
+        trips.add(mileages);
+        trips.add(driveDuration);
+        trips.add(avgSpeeds);
+        trips.add(scores);
+      } else {
+        print(
+            'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching daily statistics: $e');
+    }
+
+    // return scores;
+    return trips;
   }
 
   // Method to initialize and start tracking with the given device token

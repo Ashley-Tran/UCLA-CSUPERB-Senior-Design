@@ -304,7 +304,7 @@ public class SwiftTelematicsSDKPlugin: NSObject, FlutterPlugin, RPLowPowerModeDe
     public func onNewEvents(_ events: NSMutableArray!) {  //TO DO
         for item in events {
             if let theItem = item as? RPEventPoint {
-                
+                NSLog("event id = %@ type = %@", theItem.theId, theItem.type)
             }
         }
         //self.channel?.invokeMethod("onNewEvents", arguments: json)

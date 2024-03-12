@@ -26,7 +26,7 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
 
   Map<String, String> patientList = {};
   List<String> summaryScores = [];
-//  Map<String, String> summaryScores = {};
+
   @override
   void initState() {
     super.initState();
@@ -36,8 +36,9 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
 
   String patients = "";
   String summaryScore = "";
-
+  List<ListTile> patientsAndScores = [];
   void loadPatients() async {
+    ListTile tile;
     try {
       var items = await _auth.getPatients();
       setState(() {
@@ -49,19 +50,94 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
             print(value);
             summaryScore = await _auth.fetchSummarySafetyScore(
                 "2024-01-01", "2024-10-10", value);
-            // if(summaryScore.isNotEmpty){
-            //      summaryScores.add(summaryScore);
-            // }
-            // summaryScores[key] = summaryScore;
-            // summaryScores.addEntries(key, (value) => summaryScore);
-            // print(summaryScore);
             summaryScores.add(summaryScore);
+            double s = double.parse(summaryScore);
+            if (s >= 80 && s < 101) {
+              tile = new ListTile(
+                  tileColor: Color.fromARGB(255, 68, 125, 171),
+                  title: Text(key),
+                  subtitle: Text("Summary Score: " + summaryScore),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            PatientDisplayScreen(key, value)));
+                  },
+                  shape: Border(
+                    bottom: BorderSide(color: Colors.black),
+                  ));
+              patientsAndScores.add(tile);
+            } else if (s >= 60 && s < 80) {
+              tile = new ListTile(
+                  tileColor: Color.fromARGB(255, 106, 121, 134),
+                  title: Text(key),
+                  subtitle: Text("Summary Score: " + summaryScore),
+                  shape: Border(
+                    bottom: BorderSide(color: Colors.black),
+                  ));
+              patientsAndScores.add(tile);
+            } else {
+              ListTile tile = new ListTile(
+                  tileColor: Color.fromARGB(255, 249, 0, 0),
+                  title: Text(key),
+                  subtitle: Text("Summary Score: " + summaryScore),
+                  shape: Border(bottom: BorderSide(color: Colors.black)));
+              patientsAndScores.add(tile);
+            }
           });
         }
+        // _listItems();
+        // patientsAndScores = _listItems();
       });
     } catch (e) {
       print("Error loading patients: $e");
     }
+  }
+
+  // Make color-coded ListTiles for each patient
+  List<ListTile> _listItems() {
+    List<ListTile> list = [];
+    ListTile tile;
+    int index = 0;
+    patientList.forEach((key, value) {
+      double s = double.parse(summaryScores[index]);
+      print(s);
+      if (s >= 80 && s < 101) {
+        tile = new ListTile(
+            tileColor: Color.fromARGB(255, 68, 125, 171),
+            title: Text(key),
+            subtitle: Text("Summary Score: " + summaryScores[index]),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => PatientDisplayScreen(key, value)));
+            },
+            shape: Border(
+              bottom: BorderSide(color: Colors.black),
+            ));
+        list.add(tile);
+      } else if (s >= 60 && s < 80) {
+        tile = new ListTile(
+            tileColor: Color.fromARGB(255, 106, 121, 134),
+            title: Text(key),
+            subtitle: Text("Summary Score: " + summaryScores[index]),
+            shape: Border(
+              bottom: BorderSide(color: Colors.black),
+            ));
+        list.add(tile);
+      } else {
+        ListTile tile = new ListTile(
+            tileColor: Color.fromARGB(255, 249, 0, 0),
+            title: Text(key),
+            subtitle: Text("Summary Score: " + summaryScores[index]),
+            shape: Border(bottom: BorderSide(color: Colors.black)));
+        list.add(tile);
+      }
+      index++;
+    });
+    // setState((){
+    //      patientsAndScores = list;
+    // });
+    // print(patientsAndScores);
+    return list;
   }
 
   int _selectedIndex = 0;
@@ -93,49 +169,6 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
     );
   }
 
-  List<ListTile> patientsAndScores = [];
-
-  List<ListTile> _listItems() {
-    List<ListTile> list = [];
-    ListTile tile;
-    int index = 0;
-    patientList.forEach((key, value) {
-      double s = double.parse(summaryScores[index]);
-      print(s);
-      if (s >= 80 && s < 101) {
-        tile = new ListTile(
-            tileColor: Color.fromARGB(255, 68, 125, 171),
-            title: Text(key),
-            subtitle: Text("Summary Score: " + summaryScores[index]),
-            onTap:(){
-              Navigator.of(context).push(MaterialPageRoute(builder:(context)=>PatientDisplayScreen(value)));
-            },
-            shape: Border(
-              bottom: BorderSide(color: Colors.black),
-            ));
-        list.add(tile);
-      } else if (s >= 60 && s < 80) {
-        tile = new ListTile(
-            tileColor: Color.fromARGB(255, 106, 121, 134),
-            title: Text(key),
-            subtitle: Text("Summary Score: " + summaryScores[index]),
-            shape: Border(
-              bottom: BorderSide(color: Colors.black),
-            ));
-        list.add(tile);
-      } else {
-        ListTile tile = new ListTile(
-            tileColor: Color.fromARGB(255, 249, 0, 0),
-            title: Text(key),
-            subtitle: Text("Summary Score: " + summaryScores[index]),
-            shape: Border(bottom: BorderSide(color: Colors.black)));
-        list.add(tile);
-      }
-      index++;
-    });
-    return list;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,7 +193,8 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
               ),
             ],
           ),
-          Column(children: _listItems()),
+          // Column(children: _listItems()),
+          Column(children: patientsAndScores),
           _sizedBoxSpace,
           _sizedBoxSpace,
         ],
