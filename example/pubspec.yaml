@@ -10,6 +10,7 @@ dependencies:
   firebase_auth: ^4.17.3
   firebase_database: ^10.4.4
   http: ^1.2.0
+  group_button: ^5.3.4
   url_launcher: ^6.2.5
   flutter_pw_validator: ^1.6.0
   flutter:

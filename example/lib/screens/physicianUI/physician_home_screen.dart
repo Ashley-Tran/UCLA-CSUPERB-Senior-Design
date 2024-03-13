@@ -1,12 +1,8 @@
-import 'dart:async';
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 import 'package:telematics_sdk_example/screens/physicianUI/patient_display_screen.dart';
 
 import 'package:telematics_sdk_example/screens/physicianUI/physician_settings_screen.dart';
 import 'package:telematics_sdk_example/screens/patientUI/tutorial_screen.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -188,7 +184,7 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
                   color: Colors.black,
                 ),
                 onPressed: () {
-                  Navigator.of(context).push(TutorialHome());
+                  showDialog(context: context, builder: (context) => Tutorial());
                 },
               ),
             ],

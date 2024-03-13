@@ -4,7 +4,6 @@ import 'package:telematics_sdk_example/services/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:telematics_sdk_example/screens/physicianUI/physician_home_screen.dart';
 import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
-import 'package:telematics_sdk_example/screens/physicianUI/test_screen.dart';
 
 class PhysicianSignInScreen extends StatefulWidget {
   const PhysicianSignInScreen({Key? key}) : super(key: key);
@@ -308,10 +307,6 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => PhysicianHomeScreen()));
 
-
-//  Navigator.of(context).pushReplacement(
-//             MaterialPageRoute(builder: (context) => TestPage()));
-
         // Stop loading
         setState(() => isLoading = false);
       } else {
@@ -335,11 +330,8 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
 
       if (user != null) {
         if (!mounted) return;
-
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => PhysicianHomeScreen()));
-// Navigator.of(context).pushReplacement(
-//             MaterialPageRoute(builder: (context) => TestPage()));
 
         //   // Stop loading
         setState(() => isLoading = false);

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:telematics_sdk_example/screens/welcome_screen.dart';
 import 'package:telematics_sdk_example/services/auth.dart';
-import 'package:telematics_sdk_example/screens/patientUI/settings/patient_profile_screen.dart';
+import 'package:telematics_sdk_example/screens/physicianUI/settings/physician_profile_screen.dart';
 // import 'package:telematics_sdk_example/screens/tutorial_screen.dart';
 import 'package:telematics_sdk_example/screens/physicianUI/physician_home_screen.dart';
 import 'package:telematics_sdk_example/screens/patientUI/settings/about_app_screen.dart';
@@ -86,7 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => PatientProfileScreen()));
+                      builder: (context) => PhysicianProfileScreen()));
             },
           ),
           const SizedBox(height: 30),
@@ -100,14 +100,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             dense: true,
           ),
-          // ListTile(
-          //   leading: Icon(Icons.menu_book),
-          //   title: Text('Tutorial'),
-          //   trailing: Icon(Icons.arrow_forward_ios),
-          //   onTap: () {
-          //     Navigator.of(context).push(TutorialHome());
-          //   },
-          // ),
           ListTile(
             leading: Icon(Icons.info_outline),
             title: Text('About App'),
@@ -126,14 +118,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => PrivacyPolicyScreen()));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.data_exploration_sharp),
-            title: Text('Request My Data'),
-            trailing: Icon(Icons.arrow_forward_ios),
-            onTap: () async {
-              _launchUrl();
             },
           ),
           ListTile(

@@ -137,7 +137,8 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                   color: Colors.black,
                 ),
                 onPressed: () {
-                  Navigator.of(context).push(TutorialHome());
+                  showDialog(context: context, builder: (context) => Tutorial());
+                  // Navigator.of(context).push(TutorialHome());
                 },
               ),
             ],
