@@ -348,11 +348,10 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
       AppUser? user = await _auth.registerPatient(
         email: _controllerEmail.text,
         password: _controllerPassword.text,
-        // firstName: firstName,
-        // lastName: lastName,
         gender: "",
         birthday: "",
-        physician: _controllerPhysician.text,
+        // physician: _controllerPhysician.text,
+                physician: physician,
         physicianID: physicianUid!,
       );
       

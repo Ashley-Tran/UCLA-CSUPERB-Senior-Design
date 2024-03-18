@@ -177,10 +177,8 @@ class UnifiedAuthService {
   }
 
   Future<Map<String, String>> getPatients() async {
-    //  List<String> ids = [];
     List<String> emails = [];
     List<String> accessTokens = [];
-    // List<String> scores = [];
     Map<String, String> patientList = <String, String>{};
 
     DatabaseReference ref = FirebaseDatabase.instance.ref('patients');
@@ -193,30 +191,17 @@ class UnifiedAuthService {
         Map<dynamic, dynamic> patients =
             event.snapshot.value as Map<dynamic, dynamic>;
 
-        // patients.forEach((key, value) {
         patients.forEach((key, value) async {
-          // String fullName = '${value['firstName']} ${value['lastName']}';
-          // String patientID = '$key';
           String patientAT = '${value['accessToken']}';
           String patientEmail = '${value['email']}';
-          // String score = await fetchSummarySafetyScore(
-          //     "2024-01-01", "2024-10-10", value);
+
           if ('${value['physicianID']}' == uid) {
-            // print(patientID);
-            //    print(patientEmail);
-            // ids.add(patientID);
-            // scores.add(score);
             accessTokens.add(patientAT);
             emails.add(patientEmail);
           }
         });
 
-        // patientList = Map.fromIterables(scores, accessTokens);
-
         patientList = Map.fromIterables(emails, accessTokens);
-
-        // patientList = Map.fromIterables(ids, accessTokens);
-        //  patientList = Map.fromIterables(ids, emails);
       } catch (e) {
         print(e.toString());
         // Handle errors or return an empty list
@@ -347,6 +332,99 @@ class UnifiedAuthService {
     return null;
   }
 
+  Future<String?> getGender(String? uid) async {
+    if (uid == null) {
+      print("UID is null. Cannot retrieve Physician.");
+      return null;
+    }
+
+    DatabaseReference dbRef = FirebaseDatabase.instance.ref('patients/$uid');
+
+    try {
+      DataSnapshot snapshot = await dbRef.get();
+
+      if (snapshot.exists) {
+        final data = snapshot.value as Map<dynamic, dynamic>?;
+        if (data != null && data.containsKey('gender')) {
+          final String? gender = data['gender'];
+          print("Gender for UID $uid is: $gender");
+          return gender;
+        } else {
+          print("Gender not found for UID $uid.");
+        }
+      } else {
+        print("Snapshot does not exist for UID $uid.");
+      }
+    } catch (e) {
+      print(
+          "An error occurred while trying to fetch physician for UID $uid: $e");
+    }
+
+    return null;
+  }
+
+  Future<String?> getBirthday(String? uid) async {
+    if (uid == null) {
+      print("UID is null. Cannot retrieve Physician.");
+      return null;
+    }
+
+    DatabaseReference dbRef = FirebaseDatabase.instance.ref('patients/$uid');
+
+    try {
+      DataSnapshot snapshot = await dbRef.get();
+
+      if (snapshot.exists) {
+        final data = snapshot.value as Map<dynamic, dynamic>?;
+        if (data != null && data.containsKey('birthday')) {
+          final String? birthday = data['birthday'];
+          print("Birthday for UID $uid is: $birthday");
+          return birthday;
+        } else {
+          print("Birthday not found for UID $uid.");
+        }
+      } else {
+        print("Snapshot does not exist for UID $uid.");
+      }
+    } catch (e) {
+      print(
+          "An error occurred while trying to fetch birthday for UID $uid: $e");
+    }
+
+    return null;
+  }
+
+  //  Future<String?> getGender(String? uid) async {
+  //   if (uid == null) {
+  //     print("UID is null. Cannot retrieve Physician.");
+  //     return null;
+  //   }
+
+  //   DatabaseReference dbRef = FirebaseDatabase.instance.ref('patients/$uid');
+
+  //   try {
+  //     DataSnapshot snapshot = await dbRef.get();
+
+  //     if (snapshot.exists) {
+  //       final data = snapshot.value as Map<dynamic, dynamic>?;
+  //       if (data != null && data.containsKey('gender')) {
+  //         final String? gender = data['gender'];
+  //         print("Gender for UID $uid is: $gender");
+  //         return gender;
+  //       } else {
+  //         print("Gender not found for UID $uid.");
+  //       }
+  //     } else {
+  //       print("Snapshot does not exist for UID $uid.");
+  //     }
+  //   } catch (e) {
+  //     print(
+  //         "An error occurred while trying to fetch gender for UID $uid: $e");
+  //   }
+
+  //   return null;
+  // }
+
   // Future<void>
 
   // Method to login to Damoov
@@ -433,17 +511,12 @@ class UnifiedAuthService {
     }
   }
 
-  // Future<String> getBirthday() async {
-  //    User? user = _auth.currentUser;
-  //   // String birthday;
-  //    if (user != null) {
-  //     await
-  //      _database
-  //         .ref('patients/${user.uid}/birthday').get();
-  //         // .get({'birthday'});
-  //   }
-  //   return null;
-  // }
+  Future<void> addGender(String? gender) async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      await _database.ref('patients/${user.uid}').update({'gender': gender});
+    }
+  }
 
   // Method to change the current user's password
   Future<void> changePassword(String newPassword) async {
@@ -523,6 +596,9 @@ class UnifiedAuthService {
         if (data["Result"] != null) {
           tripCount = data["Result"]["DriverTripsCount"].toString();
           totalMiles = data["Result"]["MileageMile"].toString();
+          double test = double.parse(totalMiles);
+           totalMiles = test.toStringAsPrecision(4);
+     
           drivingTime = data["Result"]["DrivingTime"].toString();
         } else {
           tripCount = "n/a";
@@ -706,15 +782,22 @@ class UnifiedAuthService {
                 " to " +
                 data["Result"]['Trips'][i]['Data']['Addresses']['End']['Full']
                     .toString());
-
-            mileages.add("Mileage (km/h): " +
-                data["Result"]['Trips'][i]['Statistics']['Mileage'].toString());
+              String mileage =   data["Result"]['Trips'][i]['Statistics']['Mileage'].toString();
+             double test = double.parse(mileage);
+           mileage = test.toStringAsPrecision(5);
+             mileages.add("Mileage (km/h): " + mileage);
+           
             driveDuration.add("Duration of Drive (min): " +
                 data["Result"]['Trips'][i]['Statistics']['DurationMinutes']
                     .toString());
-            avgSpeeds.add("Average Speed: " +
-                data["Result"]['Trips'][i]['Statistics']['AverageSpeed']
-                    .toString());
+
+            mileage =    data["Result"]['Trips'][i]['Statistics']['AverageSpeed'].toString();
+             test = double.parse(mileage);
+           mileage = test.toStringAsPrecision(5);
+               avgSpeeds.add("Average Speed: " + mileage);
+            // avgSpeeds.add("Average Speed: " +
+            //     data["Result"]['Trips'][i]['Statistics']['AverageSpeed']
+            //         .toString());
             scores.add(
                 "Scores: " + data["Result"]['Trips'][i]['Scores'].toString());
           }

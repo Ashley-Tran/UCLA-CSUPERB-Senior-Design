@@ -14,15 +14,29 @@ class PatientProfileScreen extends StatefulWidget {
 
 class _PatientProfileScreenState extends State<PatientProfileScreen> {
   final User? user = Auth().currentUser;
-
+  final List<String> _genderOptions = ['Male', 'Female', 'Other'];
+  String? _selectedGender;
   final TextEditingController _newPasswordController = TextEditingController();
   final UnifiedAuthService _auth = UnifiedAuthService();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
   final TextEditingController _birthdayController = TextEditingController();
-String physician = "";
+  String physician = "";
+  bool hasBirthday = false;
+  String birthday = "";
+  bool changePassword = false;
+  String gender = "";
+  bool hasGender = false;
   // String? physician = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _displayPhysician();
+    _displayBirthday();
+    _displayGender();
+  }
 
 //Change password
   Future<void> updateUserPassword() async {
@@ -68,16 +82,37 @@ String physician = "";
     }
   }
 
+  Future<void> _displayPhysician() async {
+    var doc = await _auth.getPhysician(user?.uid);
+    if (doc != null) {
+      setState(() {
+        physician = doc;
+      });
+    }
+  }
 
-  Future<void> _displayPhysician() async{
-    final physician = await _auth.getPhysician(user?.uid);
-    // return physician;
-    // if(physician!= null){
-    //   return Text(physician);
-    // }
-    // else{
-    // return Text("None found");
-    // }
+  Future<void> _displayBirthday() async {
+    var bday = await _auth.getBirthday(user?.uid);
+    if (bday != null) {
+      setState(() {
+        birthday = bday;
+        if (birthday != "") {
+          hasBirthday = true;
+        }
+      });
+    }
+  }
+
+  Future<void> _displayGender() async {
+    var s = await _auth.getGender(user?.uid);
+    if (s != null) {
+      setState(() {
+        gender = s;
+        if (gender != "") {
+          hasGender = true;
+        }
+      });
+    }
   }
 
   @override
@@ -113,34 +148,87 @@ String physician = "";
               padding: const EdgeInsets.only(left: 40, top: 50),
               children: [
                 Text('Email: ${user?.email ?? 'User email'}',
-                    style: TextStyle(fontSize: 15)),
-                   
-                Text("Physician(s):${physician ?? 'User physician'}",
-                    style: TextStyle(fontSize: 15)),
-                TextFormField(
-                  controller: _birthdayController,
-                  decoration: const InputDecoration(
-                    labelText: 'Birthday',
-                    suffixIcon: Icon(Icons.calendar_today),
+                    style: TextStyle(fontSize: 16)),
+                Text("Physician: ${physician}", style: TextStyle(fontSize: 16)),
+                if (hasBirthday) ...[
+                  Text("Birthday: ${birthday}", style: TextStyle(fontSize: 16)),
+                ] else ...[
+                  Padding(padding: EdgeInsets.only(right: 20),),
+                  ExpansionTile(
+                      title: Text('Add Birthday'),
+                      trailing: Icon(
+                        Icons.create,
+                      ),
+                      children: <Widget>[
+                        TextFormField(
+                          controller: _birthdayController,
+                          decoration: const InputDecoration(
+                            labelText: 'Birthday',
+                            suffixIcon: Icon(Icons.calendar_today),
+                          ),
+                          readOnly: true,
+                          onTap: () => _selectBirthday(context),
+                        ),
+                      ]),
+                ],
+                if (hasGender) ...[
+                  Text("Gender: ${gender}", style: TextStyle(fontSize: 15)),
+                ] else ...[
+                  //  Padding(padding: EdgeInsets.only(right: 40),),
+                  ExpansionTile(
+                    title: Text('Add Gender'),
+                    trailing: Icon(
+                      Icons.create,
+                    ),
+                    children: <Widget>[
+                      DropdownButtonFormField<String>(
+                        value: _selectedGender,
+                        decoration: const InputDecoration(labelText: 'Gender'),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedGender = newValue;
+                            if(_selectedGender != null){
+                                 _auth.addGender(_selectedGender);
+                            }
+                            // _auth.addGender(newValue);
+                          });
+                        },
+                        items: _genderOptions
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        // onChanged: ,
+                      ),
+                    ],
+                  )
+                ],
+                ExpansionTile(
+                  title: Text('Change Password'),
+                  trailing: Icon(
+                    Icons.create,
                   ),
-                  readOnly: true,
-                  onTap: () => _selectBirthday(context),
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _newPasswordController,
+                      decoration:
+                          const InputDecoration(labelText: 'New Password'),
+                      obscureText: true,
+                    ),
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      decoration: const InputDecoration(
+                          labelText: 'Confirm New Password'),
+                      obscureText: true,
+                    ),
+                    TextButton(
+                      child: Text("Change Password"),
+                      onPressed: updateUserPassword,
+                    ),
+                  ],
                 ),
-                TextFormField(
-                  controller: _newPasswordController,
-                  decoration: const InputDecoration(labelText: 'New Password'),
-                  obscureText: true,
-                ),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration:
-                      const InputDecoration(labelText: 'Confirm New Password'),
-                  obscureText: true,
-                ),
-                TextButton(
-                  child: Text("Change Password"),
-                  onPressed: updateUserPassword,
-                )
               ],
             )
           ],

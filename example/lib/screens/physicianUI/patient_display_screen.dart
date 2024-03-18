@@ -10,7 +10,7 @@ class PatientDisplayScreen extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _PatientDisplayScreenState(this.email,this.token);
+    return _PatientDisplayScreenState(this.email, this.token);
   }
 }
 
@@ -66,7 +66,8 @@ class _PatientDisplayScreenState extends State<PatientDisplayScreen> {
           Card bScore = new Card(child: Text("Braking Score - " + items[1]));
           Card sScore = new Card(child: Text("Speeding Score - " + items[2]));
           Card cScore = new Card(child: Text("Cornering Score - " + items[3]));
-          Card pScore = new Card(child: Text("Phone Usage Score - " + items[4]));
+          Card pScore =
+              new Card(child: Text("Phone Usage Score - " + items[4]));
           scoreCards.add(aScore);
           scoreCards.add(bScore);
           scoreCards.add(sScore);
@@ -86,11 +87,17 @@ class _PatientDisplayScreenState extends State<PatientDisplayScreen> {
         title: Text(email),
       ),
       body: ListView(
-        children: [Column(children: firstCards), Column(children: scoreCards), 
-        TextButton(onPressed:  () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => PatientTripsScreen(email, token, tripCount)));
-                }, child: Text("Test"))],
+        children: [
+          Column(children: firstCards),
+          Column(children: scoreCards),
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) =>
+                        PatientTripsScreen(email, token, tripCount)));
+              },
+              child: Text("Test"))
+        ],
       ),
     );
   }

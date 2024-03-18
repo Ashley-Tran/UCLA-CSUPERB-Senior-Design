@@ -92,10 +92,6 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
   }
 
   Widget _logo() {
-    // return Positioned(
-    // top: 100.0,
-    // right: 90,
-    // child:
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

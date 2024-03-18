@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 
 import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
@@ -26,13 +23,9 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
   User? currentUser = FirebaseAuth.instance.currentUser;
   final UnifiedAuthService _auth = UnifiedAuthService();
 
-  // List<String> scores = [];
   List<List<String>> trips = [];
-  // List<Card> scoreCards = [];
 
-  // List<Row> tripRows = [];
-  // List<Column> containers = [];
-    List<Container> containers = [];
+  List<Container> containers = [];
 
   @override
   void initState() {
@@ -53,15 +46,13 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
               details.add(Text(element[i]));
               // print(element[i]);
             });
-            containers.add(Container(color: Color.fromARGB(255, 238, 235, 235),margin: EdgeInsets.all(10), child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: details)));
-           
-            // containers.add(Column
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     mainAxisSize: MainAxisSize.min,
-            //     children: details));
+            containers.add(Container(
+                color: Color.fromARGB(255, 238, 235, 235),
+                margin: EdgeInsets.all(10),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: details)));
           }
         });
       }
@@ -78,7 +69,6 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
       ),
       body: ListView(
         children: containers,
-        
       ),
     );
   }

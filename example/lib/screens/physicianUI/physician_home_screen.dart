@@ -25,8 +25,9 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
 
   @override
   void initState() {
-    super.initState();
+    // super.initState();
     loadPatients();
+      super.initState();
     // _listItems();
   }
 
@@ -39,7 +40,6 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
       var items = await _auth.getPatients();
       setState(() {
         patientList = items;
-
         if (items.isNotEmpty) {
           patientList.forEach((key, value) async {
             print(key);

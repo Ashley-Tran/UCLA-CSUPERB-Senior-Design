@@ -21,7 +21,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
   final TextEditingController _controllerFirstName = TextEditingController();
   final TextEditingController _controllerLastName = TextEditingController();
   final TextEditingController _controllerOrgName = TextEditingController();
-  final TextEditingController _controllerNIP = TextEditingController();
+  final TextEditingController _controllerNPI = TextEditingController();
   final TextEditingController _controllerPhone = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
   final TextEditingController _controllerEmail = TextEditingController();
@@ -297,7 +297,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
         password: _controllerPassword.text,
         firstName: _controllerFirstName.text,
         lastName: _controllerLastName.text,
-        npi: _controllerNIP.text,
+        npi: _controllerNPI.text,
         organizationName: _controllerOrgName.text,
         phone: _controllerPhone.text,
       );
@@ -405,7 +405,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
                 _entryField('FIRST NAME', _controllerFirstName),
                 _entryField('LAST NAME', _controllerLastName),
                 _entryField('PHONE', _controllerPhone),
-                _entryField('NPI', _controllerNIP),
+                _entryField('NPI', _controllerNPI),
                 _entryField('ORG. NAME', _controllerOrgName),
                 _submitButton(),
                 _loginOrRegisterButton(),
