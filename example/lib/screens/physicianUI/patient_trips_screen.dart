@@ -66,6 +66,14 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(email),
+        flexibleSpace: Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: <Color>[Color.fromARGB(255, 255, 255, 255),Color.fromARGB(255, 51, 110, 159)]),
+      ),
+        ),
       ),
       body: ListView(
         children: containers,

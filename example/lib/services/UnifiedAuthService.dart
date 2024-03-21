@@ -598,8 +598,10 @@ class UnifiedAuthService {
           totalMiles = data["Result"]["MileageMile"].toString();
           double test = double.parse(totalMiles);
            totalMiles = test.toStringAsPrecision(4);
-     
+
           drivingTime = data["Result"]["DrivingTime"].toString();
+          test = double.parse(drivingTime);
+          drivingTime = test.toStringAsPrecision(4);
         } else {
           tripCount = "n/a";
           totalMiles = "n/a";

@@ -4,6 +4,7 @@ import 'package:telematics_sdk_example/services/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:telematics_sdk_example/screens/physicianUI/physician_home_screen.dart';
 import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
+import 'package:flutter_pw_validator/flutter_pw_validator.dart';
 
 class PhysicianSignInScreen extends StatefulWidget {
   const PhysicianSignInScreen({Key? key}) : super(key: key);
@@ -149,6 +150,147 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
           ),
         ),
         // This belongs to the car logo.
+        // Positioned(
+        //   top: 100.0,
+        //   right: 120,
+        //   child: Center(
+        //     child: Column(
+        //       mainAxisAlignment: MainAxisAlignment.center,
+        //       children: [
+        //         Container(
+        //           child: ColorFiltered(
+        //             colorFilter: const ColorFilter.mode(
+        //               Color.fromARGB(255, 103, 139, 183),
+        //               BlendMode.srcIn,
+        //             ),
+        //             child: Image.asset(
+        //               'assets/images/road.png',
+        //               height: 150,
+        //             ),
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+      ],
+    );
+  }
+
+
+  Widget _signInDecoration() {
+    return Stack(
+      children: [
+        Positioned(
+          child: Padding(
+            padding:
+                const EdgeInsets.only(top: 40, bottom: 15, right: 10, left: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: (const Color.fromARGB(255, 4, 27, 63))!,
+                  width: 5,
+                ),
+              ),
+            ),
+          ),
+        ),
+        // This is that invisible rectangle at the top left.
+        Positioned(
+          top: 28,
+          left: -100,
+          child: Container(
+            height: 175,
+            width: 175,
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 255, 255, 255),
+              shape: BoxShape.rectangle,
+            ),
+          ),
+        ),
+        // This is that invisible rectangle at the bottom right.
+        Positioned(
+          bottom: -45,
+          right: -13,
+          child: Container(
+            height: 175,
+            width: 175,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.rectangle,
+            ),
+          ),
+        ),
+        // This is for the blue ball-top left.
+        Positioned(
+          top: 30.0,
+          left: -40.0,
+          child: Container(
+            height: 125,
+            width: 125,
+            decoration: BoxDecoration(
+              color: (const Color.fromARGB(255, 4, 27, 63)),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 3.0,
+              ),
+            ),
+            child: BackButton(color: Colors.white),
+          ),
+        ),
+        // This is for the beige ball-top left.
+        Positioned(
+          top: 100.0,
+          left: -40.0,
+          child: Container(
+            height: 95,
+            width: 95,
+            decoration: BoxDecoration(
+              color: (const Color.fromARGB(255, 200, 195, 146)),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 3.0,
+              ),
+            ),
+          ),
+        ),
+        // This is for the blue ball-bottom right.
+        Positioned(
+          bottom: -80.0,
+          right: -80.0,
+          child: Container(
+            height: 200,
+            width: 200,
+            decoration: BoxDecoration(
+              color: (const Color.fromARGB(255, 4, 27, 63)),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 3.0,
+              ),
+            ),
+          ),
+        ),
+        // This is for the beige ball-bottom right.
+        Positioned(
+          bottom: -50.0,
+          right: 50.0,
+          child: Container(
+            height: 100,
+            width: 100,
+            decoration: BoxDecoration(
+              color: (const Color.fromARGB(255, 200, 195, 146)),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 3.0,
+              ),
+            ),
+          ),
+        ),
+        // This belongs to the car logo.
         Positioned(
           top: 100.0,
           right: 120,
@@ -180,7 +322,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     return Align(
       alignment: Alignment.center,
       child: Padding(
-        padding: const EdgeInsets.only(top: 275, left: 20, right: 20),
+        padding: isLogin ? const EdgeInsets.only(top: 300, left: 20, right: 20) : const EdgeInsets.only(top: 100, left: 20, right: 20) ,
         child: Column(
           children: [
             Text(
@@ -223,6 +365,32 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
         ),
       ),
     );
+  }
+
+  Widget _passwordCheck() {
+    return Padding(
+        padding: const EdgeInsets.only(left: 0),
+        // padding: const EdgeInsets.symmetric(horizontal: 40.0),
+        child: SizedBox(
+          height: 60,
+          width: 300,
+          child: TextFormField(
+            controller: _controllerConfirmPassword,
+            obscureText: true,
+            decoration: const InputDecoration(
+              hintText: 'CONFIRM PASSWORD',
+            ),
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return 'Please re-enter password';
+              }
+              if (_controllerPassword.text != _controllerConfirmPassword.text) {
+                return "Password does not match";
+              }
+              return null;
+            },
+          ),
+        ));
   }
 
 // Displays link and calls UnifiedAuthService method to send reset email
@@ -375,8 +543,16 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          _decoration(),
-          _loginHeader(),
+          // _decoration(),
+             _loginHeader(),
+            if (isLogin) ...[
+              _signInDecoration(),
+          // _loginHeader(),
+            ] 
+            else ...[
+               _decoration(),
+            ],
+             _loginHeader(),
           Column(
             // space
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -398,10 +574,20 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
                 _submitButton(),
                 _loginOrRegisterButton(),
               ] else ...[
-                Padding(padding: const EdgeInsets.only(bottom: 235)),
+                Padding(padding: const EdgeInsets.only(bottom: 105)),
                 _entryField('EMAIL', _controllerEmail),
                 _entryField('PASSWORD', _controllerPassword),
-                _entryField('CONFIRM PASSWORD', _controllerConfirmPassword),
+                 FlutterPwValidator(
+                    width: 300,
+                    height: 98,
+                    minLength: 8,
+                    uppercaseCharCount: 1,
+                    specialCharCount: 1,
+                    numericCharCount: 2,
+                    onSuccess: () {},
+                    controller: _controllerPassword),
+                _passwordCheck(),
+                // _entryField('CONFIRM PASSWORD', _controllerConfirmPassword),
                 _entryField('FIRST NAME', _controllerFirstName),
                 _entryField('LAST NAME', _controllerLastName),
                 _entryField('PHONE', _controllerPhone),
