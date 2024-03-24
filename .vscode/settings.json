@@ -1,5 +1,4 @@
 {
-    "cSpell.words": [
-        "telematics"
-    ]
+  "cSpell.words": ["telematics"],
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

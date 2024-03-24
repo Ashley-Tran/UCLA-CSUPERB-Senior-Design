@@ -3,21 +3,26 @@ buildscript {
     repositories {
         google()
         jcenter()
+        mavenCentral()
+        maven {
+    url "https://s3.us-east-2.amazonaws.com/android.telematics.sdk.production/"
+}
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:8.2.2'
-        // START: FlutterFire Configuration
-        classpath 'com.google.gms:google-services:4.3.10'
-        // END: FlutterFire Configuration
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.4.1'
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        maven {
+    url "https://s3.us-east-2.amazonaws.com/android.telematics.sdk.production/"
+}
     }
 }
 
