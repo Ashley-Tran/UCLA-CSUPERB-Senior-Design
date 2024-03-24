@@ -27,6 +27,7 @@ class _PatientDisplayScreenState extends State<PatientDisplayScreen> {
   int tripCount = 0;
   List<Padding> scores = [];
 
+
   @override
   void initState() {
     super.initState();

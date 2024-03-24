@@ -597,7 +597,7 @@ class UnifiedAuthService {
           tripCount = data["Result"]["DriverTripsCount"].toString();
           totalMiles = data["Result"]["MileageMile"].toString();
           double test = double.parse(totalMiles);
-           totalMiles = test.toStringAsPrecision(4);
+          totalMiles = test.toStringAsPrecision(4);
 
           drivingTime = data["Result"]["DrivingTime"].toString();
           test = double.parse(drivingTime);
@@ -679,11 +679,20 @@ class UnifiedAuthService {
     List<String> startDates = [];
     List<String> endDates = [];
     List<String> locations = [];
-    List<String> mileages = [];
-
     List<String> driveDuration = [];
+    List<String> accelerations = [];
+    List<String> brakings = [];
+    List<String> cornerings = [];
+    List<String> mileages = [];
+    List<String> phoneUsages = [];
+    List<String> nightHours = [];
     List<String> avgSpeeds = [];
-    List<String> scores = [];
+    List<String> sScores = [];
+     List<String> aScores = [];
+          List<String> bScores = [];
+          List<String> cScores = [];
+          List<String> spScores = [];
+          List<String> pScores = [];
     String startTime = "";
     String endTime = "";
 
@@ -743,37 +752,7 @@ class UnifiedAuthService {
 
             startDates.add(startTime);
 
-            //  List<String> rawEndDate = data["Result"]['Trips'][i]['Data']['EndDate']
-            //     .toString()
-            //     .split("T");
-            //     print(rawEndDate[1]);
-            // List<String> endT = rawEndDate[1].split("-");
-            // int endHour = int.parse(endT[0].substring(0, 2));
-            // // print(endHour);
-            // if (endHour > 12) {
-            //   endHour = endHour- 12;
-            //   endTime = rawEndDate[0].substring(5, 7) +
-            //       "-" +
-            //       rawEndDate[0].substring(8, 10) +
-            //       "-" +
-            //       rawEndDate[0].substring(0, 4) +
-            //       " " +
-            //       endHour.toString() +
-            //       t[0].substring(2, 8) +
-            //       " PM";
-            // } else {
-            //   endTime = rawEndDate[0].substring(5, 7) +
-            //       "-" +
-            //       rawEndDate[0].substring(8, 10) +
-            //       "-" +
-            //       rawEndDate[0].substring(0, 4) +
-            //       " " +
-            //       endHour.toString() +
-            //       t[0].substring(2, 8) +
-            //       " AM";
-            // }
-            // print(endTime);
-            // endDates.add(endTime);
+    
 
             endDates.add("End Date: " +
                 data["Result"]['Trips'][i]['Data']['EndDate'].toString());
@@ -784,34 +763,76 @@ class UnifiedAuthService {
                 " to " +
                 data["Result"]['Trips'][i]['Data']['Addresses']['End']['Full']
                     .toString());
-              String mileage =   data["Result"]['Trips'][i]['Statistics']['Mileage'].toString();
-             double test = double.parse(mileage);
-           mileage = test.toStringAsPrecision(5);
-             mileages.add("Mileage (km/h): " + mileage);
-           
-            driveDuration.add("Duration of Drive (min): " +
-                data["Result"]['Trips'][i]['Statistics']['DurationMinutes']
-                    .toString());
+            mileages.add(
+                double.parse(data["Result"]['Trips'][i]['Statistics']['Mileage']
+                        .toString())
+                    .toStringAsPrecision(5) + " km");
 
-            mileage =    data["Result"]['Trips'][i]['Statistics']['AverageSpeed'].toString();
-             test = double.parse(mileage);
-           mileage = test.toStringAsPrecision(5);
-               avgSpeeds.add("Average Speed: " + mileage);
-            // avgSpeeds.add("Average Speed: " +
-            //     data["Result"]['Trips'][i]['Statistics']['AverageSpeed']
-            //         .toString());
-            scores.add(
-                "Scores: " + data["Result"]['Trips'][i]['Scores'].toString());
+            accelerations.add(
+                data["Result"]['Trips'][i]['Statistics']['AccelerationsCount']
+                    .toString()
+                    .split(".")[0]);
+
+            brakings.add(
+                data["Result"]['Trips'][i]['Statistics']['BrakingsCount']
+                    .toString()
+                    .split(".")[0]);
+
+            cornerings.add(
+                data["Result"]['Trips'][i]['Statistics']['CorneringsCount']
+                    .toString()
+                    .split(".")[0]);
+            phoneUsages.add(
+                data["Result"]['Trips'][i]['Statistics']
+                        ['PhoneUsageDurationMinutes']
+                    .toString() + " min");
+            nightHours.add(
+                data["Result"]['Trips'][i]['Statistics']['NightHours']
+                    .toString() + " hrs");
+            driveDuration.add(
+                double.parse(data["Result"]['Trips'][i]['Statistics']
+                            ['DurationMinutes']
+                        .toString())
+                    .toStringAsPrecision(4) + " min");
+
+            avgSpeeds.add(
+                double.parse(data["Result"]['Trips'][i]['Statistics']
+                            ['AverageSpeed']
+                        .toString())
+                    .toStringAsPrecision(5) + " km/hr");
+
+            sScores.add(
+               data["Result"]['Trips'][i]['Scores']['Safety'].toString().split(".")[0]);
+              aScores.add(
+               data["Result"]['Trips'][i]['Scores']['Acceleration'].toString().split(".")[0]);
+            bScores.add(
+              data["Result"]['Trips'][i]['Scores']['Braking'].toString().split(".")[0]);
+            cScores.add(
+               data["Result"]['Trips'][i]['Scores']['Cornering'].toString().split(".")[0]);
+                  spScores.add(
+                data["Result"]['Trips'][i]['Scores']['Speeding'].toString().split(".")[0]);
+                  pScores.add(
+               data["Result"]['Trips'][i]['Scores']['PhoneUsage'].toString().split(".")[0]);
+              
           }
         }
         trips.add(startDates);
         trips.add(endDates);
         trips.add(locations);
-
         trips.add(mileages);
         trips.add(driveDuration);
+        trips.add(accelerations);
+        trips.add(brakings);
+        trips.add(cornerings);
+        trips.add(phoneUsages);
+        trips.add(nightHours);
         trips.add(avgSpeeds);
-        trips.add(scores);
+        trips.add(sScores);
+           trips.add(aScores);
+              trips.add(bScores);
+                 trips.add(cScores);
+                    trips.add(spScores);
+                          trips.add(pScores);
       } else {
         print(
             'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
