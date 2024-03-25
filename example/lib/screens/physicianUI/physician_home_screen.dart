@@ -6,7 +6,7 @@ import 'package:telematics_sdk_example/screens/physicianUI/physician_settings_sc
 import 'package:telematics_sdk_example/screens/patientUI/tutorial_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-
+import "dart:collection";
 const _sizedBoxSpace = SizedBox(height: 24);
 
 class PhysicianHomeScreen extends StatefulWidget {
@@ -56,6 +56,10 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
         });
 
         patientList = Map.fromIterables(emails, accessTokens);
+      SplayTreeMap<String, String> sortedList = 
+      SplayTreeMap<String,String>.from(patientList);
+      patientList = sortedList;
+      
       } catch (e) {
         print(e.toString());
         // Handle errors or return an empty list
@@ -165,6 +169,10 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
     } catch (e) {
       print("Error loading patients: $e");
     }
+    // if(patientsAndScores.isNotEmpty){
+    //   patientsAndScores.sort((a, b) => a.title?.compareTo(b.title?));
+    // }
+    // patientsAndScores.sort((a, b) => a.title?.toString.compareTo(b.title?.toString));
     setState(() {});
   }
 

@@ -351,10 +351,10 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
         gender: "",
         birthday: "",
         // physician: _controllerPhysician.text,
-                physician: physician,
+        physician: physician,
         physicianID: physicianUid!,
       );
-      
+
       if (user != null) {
         String? deviceToken = await _auth.getDeviceTokenForUser(user.uid, true);
 
@@ -364,10 +364,12 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
           await _auth.login(deviceToken);
 
           if (!mounted) return;
-
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => PatientHomeScreen()));
-
+// Perform the role check after successful sign-in
+          String role = await _auth.checkUserRole(user.uid!);
+          if (role == 'Patient') {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => PatientHomeScreen()));
+          }
           // Stop loading
           setState(() => isLoading = false);
         } else {
@@ -393,26 +395,40 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
       if (!mounted) return;
 
       if (user != null) {
-        String? deviceToken =
-            await _auth.getDeviceTokenForUser(user.uid, false);
+        if (!mounted) return;
+        String role = await _auth.checkUserRole(user.uid!);
 
         if (!mounted) return;
+        if (role == 'Patient') {
+          String? deviceToken =
+              await _auth.getDeviceTokenForUser(user.uid, false);
+          if (deviceToken != null) {
+            await _auth.login(deviceToken);
 
-        if (deviceToken != null) {
-          await _auth.login(deviceToken);
+            if (!mounted) return;
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => PatientHomeScreen()));
 
-          if (!mounted) return;
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => PatientHomeScreen()));
-
-          // Stop loading
+            // Stop loading
+          }
           setState(() => isLoading = false);
-        } else {
+        } 
+        else if (role == 'Physician') {
+            // If the role is Physician, but this sign-in method is for Patients,
+            // you might want to show an error or redirect to the Physician sign-in page
+            setState(() {
+              isLoading = false;
+             _snackBar('Physicians are not allowed to sign in here.');
+            });
+      } 
+        else {
           throw Exception('Device token could not be retrieved.');
         }
-      } else {
-        throw Exception(
-            'Failed to sign in. Please check your email and password.');
+      }
+      else {
+        // throw Exception(
+        //     'Failed to sign in. Please check your email and password.');
+             _snackBar('Failed to sign in. Please check your email and password.');
       }
     } catch (e) {
       setState(() {
@@ -422,9 +438,12 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     }
   }
 
-  Widget _errorMessage() {
-    return Text(errorMessage == '' ? '' : 'Humm ? $errorMessage');
-  }
+void _snackBar(String error){
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+}
+  // Widget _errorMessage() {
+  //   return Text(errorMessage == '' ? '' : 'Humm ? $errorMessage');
+  // }
 
   Widget _loginOrRegisterButton() {
     return Padding(

@@ -177,7 +177,6 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     );
   }
 
-
   Widget _signInDecoration() {
     return Stack(
       children: [
@@ -322,7 +321,9 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     return Align(
       alignment: Alignment.center,
       child: Padding(
-        padding: isLogin ? const EdgeInsets.only(top: 300, left: 20, right: 20) : const EdgeInsets.only(top: 100, left: 20, right: 20) ,
+        padding: isLogin
+            ? const EdgeInsets.only(top: 300, left: 20, right: 20)
+            : const EdgeInsets.only(top: 100, left: 20, right: 20),
         child: Column(
           children: [
             Text(
@@ -488,6 +489,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     }
   }
 
+bool hasError = false; 
   Future<void> _signIn() async {
     try {
       setState(() => isLoading = true);
@@ -497,15 +499,22 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
       if (!mounted) return;
 
       if (user != null) {
+        String role = await _auth.checkUserRole(user.uid!);
+        print("here");
         if (!mounted) return;
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => PhysicianHomeScreen()));
-
-        //   // Stop loading
-        setState(() => isLoading = false);
+        if (role == 'Physician') {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => PhysicianHomeScreen()));
+        } else {
+          setState(() {
+            isLoading = false;
+    
+            _snackBar("Only physicians can sign in here.");
+          });
+        }
       } else {
-        throw Exception(
-            'Failed to sign in. Please check your email and password.');
+         _snackBar('Failed to sign in. Please check your email and password.');
+       
       }
     } catch (e) {
       setState(() {
@@ -514,6 +523,10 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
       });
     }
   }
+
+void _snackBar(String error){
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+}
 
   Widget _loginOrRegisterButton() {
     return Padding(
@@ -544,15 +557,14 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
       body: Stack(
         children: [
           // _decoration(),
-             _loginHeader(),
-            if (isLogin) ...[
-              _signInDecoration(),
-          // _loginHeader(),
-            ] 
-            else ...[
-               _decoration(),
-            ],
-             _loginHeader(),
+          _loginHeader(),
+          if (isLogin) ...[
+            _signInDecoration(),
+            // _loginHeader(),
+          ] else ...[
+            _decoration(),
+          ],
+          _loginHeader(),
           Column(
             // space
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -562,22 +574,23 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
               if (isLogin) ...[
                 Padding(padding: const EdgeInsets.only(bottom: 200)),
                 _entryField('EMAIL', _controllerEmail),
-                 Padding(
+                Padding(
                   padding: const EdgeInsets.only(top: 20, left: 25, right: 20),
                 ),
                 _entryField('PASSWORD', _controllerPassword),
                 _forgotPasswordLink(),
-                 Padding(
+                Padding(
                   padding: const EdgeInsets.only(top: 50, left: 25, right: 20),
                 ),
                 // Padding(padding: const EdgeInsets.only(bottom: 50)),
                 _submitButton(),
                 _loginOrRegisterButton(),
+                
               ] else ...[
                 Padding(padding: const EdgeInsets.only(bottom: 105)),
                 _entryField('EMAIL', _controllerEmail),
                 _entryField('PASSWORD', _controllerPassword),
-                 FlutterPwValidator(
+                FlutterPwValidator(
                     width: 300,
                     height: 98,
                     minLength: 8,
@@ -595,6 +608,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
                 _entryField('ORG. NAME', _controllerOrgName),
                 _submitButton(),
                 _loginOrRegisterButton(),
+              
               ],
             ],
           ),

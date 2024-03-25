@@ -599,176 +599,199 @@ class UnifiedAuthService {
     return scores;
   }
 
-  Future<List<List<String>>> fetchTrips(String authToken, int tripCount) async {
-    List<List<String>> trips = [];
-    List<String> startDates = [];
-    List<String> endDates = [];
-    List<String> locations = [];
-    List<String> driveDuration = [];
-    List<String> accelerations = [];
-    List<String> brakings = [];
-    List<String> cornerings = [];
-    List<String> mileages = [];
-    List<String> phoneUsages = [];
-    List<String> nightHours = [];
-    List<String> avgSpeeds = [];
-    List<String> sScores = [];
-     List<String> aScores = [];
-          List<String> bScores = [];
-          List<String> cScores = [];
-          List<String> spScores = [];
-          List<String> pScores = [];
-    String startTime = "";
-    String endTime = "";
+  // Future<List<List<String>>> fetchTrips(String authToken, int tripCount) async {
+  //   List<List<String>> trips = [];
+  //   List<String> startDates = [];
+  //   List<String> endDates = [];
+  //   List<String> locations = [];
+  //   List<String> driveDuration = [];
+  //   List<String> accelerations = [];
+  //   List<String> brakings = [];
+  //   List<String> cornerings = [];
+  //   List<String> mileages = [];
+  //   List<String> phoneUsages = [];
+  //   List<String> nightHours = [];
+  //   List<String> avgSpeeds = [];
+  //   List<String> sScores = [];
+  //    List<String> aScores = [];
+  //         List<String> bScores = [];
+  //         List<String> cScores = [];
+  //         List<String> spScores = [];
+  //         List<String> pScores = [];
+  //   String startTime = "";
+  //   String endTime = "";
 
-    try {
-      final response = await http.post(
-        Uri.parse('https://api.telematicssdk.com/trips/get/v1/'),
-        headers: {
-          'accept': 'application/json',
-          'content-type': 'application/json',
-          'authorization': 'Bearer $authToken'
-        },
-        body: jsonEncode({
-          'StartDate': '2024-01-20T09:46:59.265Z',
-          'EndDate': '2024-09-20T09:46:59.265Z',
-          'IncludeDetails': true,
-          'IncludeStatistics': true,
-          'IncludeScores': true,
-          'Locale': 'EN',
-          'UnitSystem': 'Si',
-          'SortBy': 'StartDateUtc',
-          'Paging': {'Page': 1, 'Count': 10, 'IncludePagingInfo': true}
-        }),
-      );
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        if (data["Result"] != null) {
-          for (int i = 0; i < tripCount; i++) {
-            List<String> rawStartDate = data["Result"]['Trips'][i]['Data']
-                    ['StartDate']
-                .toString()
-                .split("T");
-            List<String> t = rawStartDate[1].split("-");
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse('https://api.telematicssdk.com/trips/get/v1/'),
+  //       headers: {
+  //         'accept': 'application/json',
+  //         'content-type': 'application/json',
+  //         'authorization': 'Bearer $authToken'
+  //       },
+  //       body: jsonEncode({
+  //         'StartDate': '2024-01-20T09:46:59.265Z',
+  //         'EndDate': '2024-09-20T09:46:59.265Z',
+  //         'IncludeDetails': true,
+  //         'IncludeStatistics': true,
+  //         'IncludeScores': true,
+  //         'Locale': 'EN',
+  //         'UnitSystem': 'Si',
+  //         'SortBy': 'StartDateUtc',
+  //         'Paging': {'Page': 1, 'Count': 10, 'IncludePagingInfo': true}
+  //       }),
+  //     );
+  //     if (response.statusCode == 200) {
+  //       Map<String, dynamic> data = jsonDecode(response.body);
+  //       if (data["Result"] != null) {
+  //         for (int i = 0; i < tripCount; i++) {
+  //           List<String> rawStartDate = data["Result"]['Trips'][i]['Data']
+  //                   ['StartDate']
+  //               .toString()
+  //               .split("T");
+  //           List<String> t = rawStartDate[1].split("-");
 
-            int startHour = int.parse(t[0].substring(0, 2));
-            if (startHour > 12) {
-              startHour = startHour - 12;
-              startTime = rawStartDate[0].substring(5, 7) +
-                  "-" +
-                  rawStartDate[0].substring(8, 10) +
-                  "-" +
-                  rawStartDate[0].substring(0, 4) +
-                  " " +
-                  startHour.toString() +
-                  t[0].substring(2, 8) +
-                  " PM";
-            } else {
-              startTime = rawStartDate[0].substring(5, 7) +
-                  "-" +
-                  rawStartDate[0].substring(8, 10) +
-                  "-" +
-                  rawStartDate[0].substring(0, 4) +
-                  " " +
-                  startHour.toString() +
-                  t[0].substring(2, 8) +
-                  " AM";
-            }
+  //           int startHour = int.parse(t[0].substring(0, 2));
+  //           if (startHour > 12) {
+  //             startHour = startHour - 12;
+  //             startTime = rawStartDate[0].substring(5, 7) +
+  //                 "-" +
+  //                 rawStartDate[0].substring(8, 10) +
+  //                 "-" +
+  //                 rawStartDate[0].substring(0, 4) +
+  //                 " " +
+  //                 startHour.toString() +
+  //                 t[0].substring(2, 8) +
+  //                 " PM";
+  //           } else {
+  //             startTime = rawStartDate[0].substring(5, 7) +
+  //                 "-" +
+  //                 rawStartDate[0].substring(8, 10) +
+  //                 "-" +
+  //                 rawStartDate[0].substring(0, 4) +
+  //                 " " +
+  //                 startHour.toString() +
+  //                 t[0].substring(2, 8) +
+  //                 " AM";
+  //           }
 
-            startDates.add(startTime);
+  //           startDates.add(startTime);
 
     
 
-            endDates.add("End Date: " +
-                data["Result"]['Trips'][i]['Data']['EndDate'].toString());
+  //           endDates.add("End Date: " +
+  //               data["Result"]['Trips'][i]['Data']['EndDate'].toString());
 
-            locations.add(data["Result"]['Trips'][i]['Data']['Addresses']
-                        ['Start']['Full']
-                    .toString() +
-                " to " +
-                data["Result"]['Trips'][i]['Data']['Addresses']['End']['Full']
-                    .toString());
-            mileages.add(
-                double.parse(data["Result"]['Trips'][i]['Statistics']['Mileage']
-                        .toString())
-                    .toStringAsPrecision(5) + " km");
+  //           locations.add(data["Result"]['Trips'][i]['Data']['Addresses']
+  //                       ['Start']['Full']
+  //                   .toString() +
+  //               " to " +
+  //               data["Result"]['Trips'][i]['Data']['Addresses']['End']['Full']
+  //                   .toString());
+  //           mileages.add(
+  //               double.parse(data["Result"]['Trips'][i]['Statistics']['Mileage']
+  //                       .toString())
+  //                   .toStringAsPrecision(5) + " km");
 
-            accelerations.add(
-                data["Result"]['Trips'][i]['Statistics']['AccelerationsCount']
-                    .toString()
-                    .split(".")[0]);
+  //           accelerations.add(
+  //               data["Result"]['Trips'][i]['Statistics']['AccelerationsCount']
+  //                   .toString()
+  //                   .split(".")[0]);
 
-            brakings.add(
-                data["Result"]['Trips'][i]['Statistics']['BrakingsCount']
-                    .toString()
-                    .split(".")[0]);
+  //           brakings.add(
+  //               data["Result"]['Trips'][i]['Statistics']['BrakingsCount']
+  //                   .toString()
+  //                   .split(".")[0]);
 
-            cornerings.add(
-                data["Result"]['Trips'][i]['Statistics']['CorneringsCount']
-                    .toString()
-                    .split(".")[0]);
-            phoneUsages.add(
-                data["Result"]['Trips'][i]['Statistics']
-                        ['PhoneUsageDurationMinutes']
-                    .toString() + " min");
-            nightHours.add(
-                data["Result"]['Trips'][i]['Statistics']['NightHours']
-                    .toString() + " hrs");
-            driveDuration.add(
-                double.parse(data["Result"]['Trips'][i]['Statistics']
-                            ['DurationMinutes']
-                        .toString())
-                    .toStringAsPrecision(4) + " min");
+  //           cornerings.add(
+  //               data["Result"]['Trips'][i]['Statistics']['CorneringsCount']
+  //                   .toString()
+  //                   .split(".")[0]);
+  //           phoneUsages.add(
+  //               data["Result"]['Trips'][i]['Statistics']
+  //                       ['PhoneUsageDurationMinutes']
+  //                   .toString() + " min");
+  //           nightHours.add(
+  //               data["Result"]['Trips'][i]['Statistics']['NightHours']
+  //                   .toString() + " hrs");
+  //           driveDuration.add(
+  //               double.parse(data["Result"]['Trips'][i]['Statistics']
+  //                           ['DurationMinutes']
+  //                       .toString())
+  //                   .toStringAsPrecision(4) + " min");
 
-            avgSpeeds.add(
-                double.parse(data["Result"]['Trips'][i]['Statistics']
-                            ['AverageSpeed']
-                        .toString())
-                    .toStringAsPrecision(5) + " km/hr");
+  //           avgSpeeds.add(
+  //               double.parse(data["Result"]['Trips'][i]['Statistics']
+  //                           ['AverageSpeed']
+  //                       .toString())
+  //                   .toStringAsPrecision(5) + " km/hr");
 
-            sScores.add(
-               data["Result"]['Trips'][i]['Scores']['Safety'].toString().split(".")[0]);
-              aScores.add(
-               data["Result"]['Trips'][i]['Scores']['Acceleration'].toString().split(".")[0]);
-            bScores.add(
-              data["Result"]['Trips'][i]['Scores']['Braking'].toString().split(".")[0]);
-            cScores.add(
-               data["Result"]['Trips'][i]['Scores']['Cornering'].toString().split(".")[0]);
-                  spScores.add(
-                data["Result"]['Trips'][i]['Scores']['Speeding'].toString().split(".")[0]);
-                  pScores.add(
-               data["Result"]['Trips'][i]['Scores']['PhoneUsage'].toString().split(".")[0]);
+  //           sScores.add(
+  //              data["Result"]['Trips'][i]['Scores']['Safety'].toString().split(".")[0]);
+  //             aScores.add(
+  //              data["Result"]['Trips'][i]['Scores']['Acceleration'].toString().split(".")[0]);
+  //           bScores.add(
+  //             data["Result"]['Trips'][i]['Scores']['Braking'].toString().split(".")[0]);
+  //           cScores.add(
+  //              data["Result"]['Trips'][i]['Scores']['Cornering'].toString().split(".")[0]);
+  //                 spScores.add(
+  //               data["Result"]['Trips'][i]['Scores']['Speeding'].toString().split(".")[0]);
+  //                 pScores.add(
+  //              data["Result"]['Trips'][i]['Scores']['PhoneUsage'].toString().split(".")[0]);
               
-          }
-        }
-        trips.add(startDates);
-        trips.add(endDates);
-        trips.add(locations);
-        trips.add(mileages);
-        trips.add(driveDuration);
-        trips.add(accelerations);
-        trips.add(brakings);
-        trips.add(cornerings);
-        trips.add(phoneUsages);
-        trips.add(nightHours);
-        trips.add(avgSpeeds);
-        trips.add(sScores);
-           trips.add(aScores);
-              trips.add(bScores);
-                 trips.add(cScores);
-                    trips.add(spScores);
-                          trips.add(pScores);
-      } else {
-        print(
-            'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
-      }
-    } catch (e) {
-      print('Error fetching daily statistics: $e');
+  //         }
+  //       }
+  //       trips.add(startDates);
+  //       trips.add(endDates);
+  //       trips.add(locations);
+  //       trips.add(mileages);
+  //       trips.add(driveDuration);
+  //       trips.add(accelerations);
+  //       trips.add(brakings);
+  //       trips.add(cornerings);
+  //       trips.add(phoneUsages);
+  //       trips.add(nightHours);
+  //       trips.add(avgSpeeds);
+  //       trips.add(sScores);
+  //          trips.add(aScores);
+  //             trips.add(bScores);
+  //                trips.add(cScores);
+  //                   trips.add(spScores);
+  //                         trips.add(pScores);
+  //     } else {
+  //       print(
+  //           'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching daily statistics: $e');
+  //   }
+
+  //   // return scores;
+  //   return trips;
+  // }
+
+ // Function to check the user's role
+  Future<String> checkUserRole(String uid) async {
+    // Check if UID exists under 'physicians' node
+    final physicianRef = FirebaseDatabase.instance.ref('physicians/$uid');
+    final physicianSnapshot = await physicianRef.get();
+
+    if (physicianSnapshot.exists) {
+      return 'Physician';
     }
 
-    // return scores;
-    return trips;
+    // Check if UID exists under 'patients' node
+    final patientRef = FirebaseDatabase.instance.ref('patients/$uid');
+    final patientSnapshot = await patientRef.get();
+
+    if (patientSnapshot.exists) {
+      return 'Patient';
+    }
+
+    // User is neither a physician nor a patient, or doesn't exist
+    return 'Unknown';
   }
+
 
   // Method to initialize and start tracking with the given device token
   Future<void> initializeAndStartTracking(String deviceToken) async {
