@@ -26,9 +26,9 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
   List<List<String>> trips = [];
 
   List<Container> containers = [];
-    List<String> startDates = [];
-      List<String> endDates = [];
-            List<String> locations = [];
+  List<String> startDates = [];
+  List<String> endDates = [];
+  List<String> locations = [];
   List<String> mileages = [];
   List<String> durations = [];
   List<String> accelerations = [];
@@ -37,12 +37,12 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
   List<String> phoneUsages = [];
   List<String> nightHours = [];
   List<String> avgSpeeds = [];
-    List<String> aScores = [];
-        List<String> bScores = [];
-            List<String> cScores = [];
-                List<String> sScores = [];
-                    List<String> pScores = [];
-                              List<String> spScores = [];
+  List<String> aScores = [];
+  List<String> bScores = [];
+  List<String> cScores = [];
+  List<String> sScores = [];
+  List<String> pScores = [];
+  List<String> spScores = [];
 
   @override
   void initState() {
@@ -59,8 +59,8 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
         setState(() {
           trips = items;
           startDates = trips[0];
-            endDates = trips[1];
-                locations = trips[2];
+          endDates = trips[1];
+          locations = trips[2];
           mileages = trips[3];
           durations = trips[4];
           avgSpeeds = trips[10];
@@ -70,11 +70,11 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
           phoneUsages = trips[8];
           nightHours = trips[9];
           sScores = trips[11];
-                  aScores = trips[12];
-                          bScores = trips[13];
-                                  cScores = trips[14];
-                                          spScores = trips[15];
-                                                  pScores = trips[16];
+          aScores = trips[12];
+          bScores = trips[13];
+          cScores = trips[14];
+          spScores = trips[15];
+          pScores = trips[16];
 
           for (int i = 0; i < tripCount; i++) {
             List<Text> details = [];
@@ -88,24 +88,24 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-               
-                    Row(children:<Widget>[
-                      Flexible(child:
-                      Text(
-                            // overflow: TextOverflow.ellipsis,
-                           startDates[i].toString() + "\n" + endDates[i].toString() +"\n",
-                            // textAlign: TextAlign.right,
-                          ))]),
-                     Row(children:<Widget>[
-                     Expanded(child:
-                        
-                          Text(
-                            locations[i].toString() +"\n",
-                          
-                          ),
-                     )
-                        ]
+                    Row(children: <Widget>[
+                      Flexible(
+                          child: Text(
+                        // overflow: TextOverflow.ellipsis,
+                        startDates[i].toString() +
+                            "\n" +
+                            endDates[i].toString() +
+                            "\n",
+                        // textAlign: TextAlign.right,
+                      ))
+                    ]),
+                    Row(children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          locations[i].toString() + "\n",
                         ),
+                      )
+                    ]),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -130,9 +130,10 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
                             textAlign: TextAlign.right,
                           )
                         ]),
-                        Divider(color: Colors.black,),
-                       
-                        Row(
+                    Divider(
+                      color: Colors.black,
+                    ),
+                    Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text("Average Speed",
@@ -198,7 +199,7 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
                           Text(nightHours[i].toString(),
                               textAlign: TextAlign.right)
                         ]),
-                         Row(
+                    Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -209,7 +210,7 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
                           Text(sScores[i].toString(),
                               textAlign: TextAlign.right)
                         ]),
-                          Row(
+                    Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -220,7 +221,7 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
                           Text(aScores[i].toString(),
                               textAlign: TextAlign.right)
                         ]),
-                          Row(
+                    Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -231,7 +232,7 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
                           Text(bScores[i].toString(),
                               textAlign: TextAlign.right)
                         ]),
-                          Row(
+                    Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -242,7 +243,7 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
                           Text(cScores[i].toString(),
                               textAlign: TextAlign.right)
                         ]),
-                          Row(
+                    Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -253,7 +254,7 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
                           Text(spScores[i].toString(),
                               textAlign: TextAlign.right)
                         ]),
-                          Row(
+                    Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -272,30 +273,10 @@ class _PatientTripsScreenState extends State<PatientTripsScreen> {
     } catch (e) {
       print("Error loading stats: $e");
     }
-
+    // setState()
+     setState((){});
   }
 
-  void loadMileages() {
-    if (trips.isNotEmpty) {
-      print("works");
-    }
-    //   setState((){
-    //    for (int i = 0; i < tripCount; i++) {
-    //           List<Text> details = [];
-    //           trips.forEach((element) {
-    //             details.add(Text(element[i]));
-    //             // print(element[i]);
-    //           });
-    //           containers.add(Container(
-    //               color: Color.fromARGB(255, 244, 244, 244),
-    //               margin: EdgeInsets.all(10),
-    //               child: Column(
-    //                   crossAxisAlignment: CrossAxisAlignment.start,
-    //                   mainAxisSize: MainAxisSize.min,
-    //                   children: details)));
-    //         }
-    //   });
-  }
 
   @override
   Widget build(BuildContext context) {

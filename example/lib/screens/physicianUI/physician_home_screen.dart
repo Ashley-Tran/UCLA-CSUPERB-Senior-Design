@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:telematics_sdk_example/screens/physicianUI/patient_display_screen.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:telematics_sdk_example/screens/physicianUI/physician_settings_screen.dart';
 import 'package:telematics_sdk_example/screens/patientUI/tutorial_screen.dart';
-import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 const _sizedBoxSpace = SizedBox(height: 24);
 
@@ -18,8 +19,6 @@ class PhysicianHomeScreen extends StatefulWidget {
 class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
   String docName = "";
   User? currentUser = FirebaseAuth.instance.currentUser;
-  final UnifiedAuthService _auth = UnifiedAuthService();
-
   Map<String, String> patientList = {};
   List<String> summaryScores = [];
 
@@ -27,8 +26,82 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
   void initState() {
     // super.initState();
     loadPatients();
-      super.initState();
+    super.initState();
     // _listItems();
+  }
+
+  Future<Map<String, String>> getPatients() async {
+    List<String> emails = [];
+    List<String> accessTokens = [];
+    Map<String, String> patientList = <String, String>{};
+
+    DatabaseReference ref = FirebaseDatabase.instance.ref('patients');
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      String uid = currentUser.uid;
+      try {
+        DatabaseEvent event = await ref.once();
+        Map<dynamic, dynamic> patients =
+            event.snapshot.value as Map<dynamic, dynamic>;
+
+        patients.forEach((key, value) async {
+          String patientAT = '${value['accessToken']}';
+          String patientEmail = '${value['email']}';
+
+          if ('${value['physicianID']}' == uid) {
+            accessTokens.add(patientAT);
+            emails.add(patientEmail);
+          }
+        });
+
+        patientList = Map.fromIterables(emails, accessTokens);
+      } catch (e) {
+        print(e.toString());
+        // Handle errors or return an empty list
+      }
+    }
+    setState(() {});
+    return patientList;
+  }
+
+  Future<String> fetchSummarySafetyScore(
+      String startDate, String endDate, String authToken) async {
+    var client = http.Client();
+    String statistics = '';
+    try {
+      var url =
+          Uri.parse('https://api.telematicssdk.com/indicators/v2/Scores/safety')
+              .replace(queryParameters: {
+        'StartDate': startDate,
+        'EndDate': endDate,
+      });
+
+      final response = await client.get(
+        url,
+        headers: {
+          'accept': 'application/json',
+          'authorization': 'Bearer $authToken',
+        },
+      );
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        if (data["Result"] != null) {
+          statistics = data["Result"]["SafetyScore"].toString();
+        } else {
+          statistics = "0";
+        }
+      } else {
+        print(
+            'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching daily statistics: $e');
+    } finally {
+      client.close();
+    }
+    setState(() {});
+    return statistics;
   }
 
   String patients = "";
@@ -37,15 +110,13 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
   void loadPatients() async {
     ListTile tile;
     try {
-      var items = await _auth.getPatients();
-      setState(() {
-        patientList = items;
-        if (items.isNotEmpty) {
-          patientList.forEach((key, value) async {
-            print(key);
-            print(value);
-            summaryScore = await _auth.fetchSummarySafetyScore(
-                "2024-01-01", "2024-10-10", value);
+      var items = await getPatients();
+      patientList = items;
+      if (items.isNotEmpty) {
+        patientList.forEach((key, value) async {
+          summaryScore =
+              await fetchSummarySafetyScore("2024-01-01", "2024-10-10", value);
+          if (summaryScore.isNotEmpty) {
             summaryScores.add(summaryScore);
             double s = double.parse(summaryScore);
             if (s >= 80 && s < 101) {
@@ -71,6 +142,15 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
                     bottom: BorderSide(color: Colors.black),
                   ));
               patientsAndScores.add(tile);
+            } else if (s == 0) {
+              tile = new ListTile(
+                  tileColor: Color.fromARGB(255, 189, 189, 198),
+                  title: Text(key),
+                  subtitle: Text("Summary Score: -"),
+                  shape: Border(
+                    bottom: BorderSide(color: Colors.black),
+                  ));
+              patientsAndScores.add(tile);
             } else {
               ListTile tile = new ListTile(
                   tileColor: Color.fromARGB(255, 249, 0, 0),
@@ -79,61 +159,13 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
                   shape: Border(bottom: BorderSide(color: Colors.black)));
               patientsAndScores.add(tile);
             }
-          });
-        }
-        // _listItems();
-        // patientsAndScores = _listItems();
-      });
+          }
+        });
+      }
     } catch (e) {
       print("Error loading patients: $e");
     }
-  }
-
-  // Make color-coded ListTiles for each patient
-  List<ListTile> _listItems() {
-    List<ListTile> list = [];
-    ListTile tile;
-    int index = 0;
-    patientList.forEach((key, value) {
-      double s = double.parse(summaryScores[index]);
-      print(s);
-      if (s >= 80 && s < 101) {
-        tile = new ListTile(
-            tileColor: Color.fromARGB(255, 68, 125, 171),
-            title: Text(key),
-            subtitle: Text("Summary Score: " + summaryScores[index]),
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => PatientDisplayScreen(key, value)));
-            },
-            shape: Border(
-              bottom: BorderSide(color: Colors.black),
-            ));
-        list.add(tile);
-      } else if (s >= 60 && s < 80) {
-        tile = new ListTile(
-            tileColor: Color.fromARGB(255, 106, 121, 134),
-            title: Text(key),
-            subtitle: Text("Summary Score: " + summaryScores[index]),
-            shape: Border(
-              bottom: BorderSide(color: Colors.black),
-            ));
-        list.add(tile);
-      } else {
-        ListTile tile = new ListTile(
-            tileColor: Color.fromARGB(255, 249, 0, 0),
-            title: Text(key),
-            subtitle: Text("Summary Score: " + summaryScores[index]),
-            shape: Border(bottom: BorderSide(color: Colors.black)));
-        list.add(tile);
-      }
-      index++;
-    });
-    // setState((){
-    //      patientsAndScores = list;
-    // });
-    // print(patientsAndScores);
-    return list;
+    setState(() {});
   }
 
   int _selectedIndex = 0;
@@ -184,7 +216,8 @@ class _PhysicianHomeScreenState extends State<PhysicianHomeScreen> {
                   color: Colors.black,
                 ),
                 onPressed: () {
-                  showDialog(context: context, builder: (context) => Tutorial());
+                  showDialog(
+                      context: context, builder: (context) => Tutorial());
                 },
               ),
             ],

@@ -176,43 +176,6 @@ class UnifiedAuthService {
     return items;
   }
 
-  Future<Map<String, String>> getPatients() async {
-    List<String> emails = [];
-    List<String> accessTokens = [];
-    Map<String, String> patientList = <String, String>{};
-
-    DatabaseReference ref = FirebaseDatabase.instance.ref('patients');
-    User? currentUser = FirebaseAuth.instance.currentUser;
-
-    if (currentUser != null) {
-      String uid = currentUser.uid;
-      try {
-        DatabaseEvent event = await ref.once();
-        Map<dynamic, dynamic> patients =
-            event.snapshot.value as Map<dynamic, dynamic>;
-
-        patients.forEach((key, value) async {
-          String patientAT = '${value['accessToken']}';
-          String patientEmail = '${value['email']}';
-
-          if ('${value['physicianID']}' == uid) {
-            accessTokens.add(patientAT);
-            emails.add(patientEmail);
-          }
-        });
-
-        patientList = Map.fromIterables(emails, accessTokens);
-      } catch (e) {
-        print(e.toString());
-        // Handle errors or return an empty list
-      }
-    } else {
-      // Handle the case where the user is not authenticated
-    }
-
-    return patientList;
-  }
-
   Future<AppUser?> registerPhysician({
     required String email,
     required String password,
@@ -532,44 +495,6 @@ class UnifiedAuthService {
     } else {
       print("No user is currently signed in.");
     }
-  }
-
-  Future<String> fetchSummarySafetyScore(
-      String startDate, String endDate, String authToken) async {
-    var client = http.Client();
-    String statistics = '';
-    try {
-      var url =
-          Uri.parse('https://api.telematicssdk.com/indicators/v2/Scores/safety')
-              .replace(queryParameters: {
-        'StartDate': startDate,
-        'EndDate': endDate,
-      });
-
-      final response = await client.get(
-        url,
-        headers: {
-          'accept': 'application/json',
-          'authorization': 'Bearer $authToken',
-        },
-      );
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        if (data["Result"] != null) {
-          statistics = data["Result"]["SafetyScore"].toString();
-        } else {
-          statistics = "n/a";
-        }
-      } else {
-        print(
-            'Failed to fetch daily statistics, status code: ${response.statusCode}, response: ${response.body}');
-      }
-    } catch (e) {
-      print('Error fetching daily statistics: $e');
-    } finally {
-      client.close();
-    }
-    return statistics;
   }
 
   // accumulated totals
