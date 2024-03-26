@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'dart:math';
+import 'package:geolocator/geolocator.dart';
+import 'package:telematics_sdk_example/services/notification_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
@@ -16,7 +19,7 @@ class PatientHomeScreen extends StatefulWidget {
   _PatientHomeScreenState createState() => _PatientHomeScreenState();
 }
 
-class _PatientHomeScreenState extends State<PatientHomeScreen> {
+class _PatientHomeScreenState extends State<PatientHomeScreen> with WidgetsBindingObserver {
   final _trackingApi = TrackingApi();
   late StreamSubscription<PermissionWizardResult?>
       _onPermissionWizardStateChanged;
@@ -32,6 +35,17 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
   final _tokenEditingController = TextEditingController();
 
+  Timer? _inactivityTimer;
+  bool _isTripOngoing = false;
+  String _speedInfo = "Waiting for trip to start...";
+  final double notMovingSpeedThreshold = 0.5; // meters per second
+  final int inactivityTimeout = 60; // seconds
+
+  final NotificationService notificationService = NotificationService();
+
+  bool _isAppInForeground = true;
+
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +55,10 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     _onLocationChanged =
         _trackingApi.locationChanged.listen(_onLocationChangedResult);
     initPlatformState();
+
+    WidgetsBinding.instance.addObserver(this);
+    notificationService.initNotification();
+    startListeningLocation();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -152,6 +170,14 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
               : SizedBox.shrink(),
           Text(_getCurrentLocation()),
           _sizedBoxSpace,
+
+          Text(
+          _speedInfo,
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+          ),
+        ),
         
           _sizedBoxSpace,
           
@@ -180,6 +206,11 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     _onPermissionWizardStateChanged.cancel();
     _onLowerPower.cancel();
     _onLocationChanged.cancel();
+
+    WidgetsBinding.instance.removeObserver(this);
+    _inactivityTimer?.cancel(); // Clean up the timer
+
+
     super.dispose();
   }
 
@@ -246,5 +277,88 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
     } else {
       return 'Location: null';
     }
+  }
+
+  @override
+void didChangeAppLifecycleState(AppLifecycleState state) {
+  super.didChangeAppLifecycleState(state);
+  _isAppInForeground = state == AppLifecycleState.resumed;
+}
+
+void startListeningLocation() {
+  Geolocator.getPositionStream().listen((Position position) {
+    double speedInMetersPerSecond = max(position.speed, 0); // Ensure speed is not negative
+
+    // Convert speed from m/s to mph
+    double speedInMph = speedInMetersPerSecond * 2.23694;
+
+    bool isCurrentlyMoving = speedInMph > notMovingSpeedThreshold;
+
+    setState(() {
+      // Only update trip state if there is a change
+      if (isCurrentlyMoving != _isTripOngoing) {
+        if (isCurrentlyMoving) {
+          // Movement detected
+          _isTripOngoing = true;
+          _speedInfo = "Trip started. Speed: ${speedInMph.toStringAsFixed(2)} mph";
+          print("Trip started");
+          _inactivityTimer?.cancel();
+        } else {
+          // End of trip detected, start inactivity timer
+          _inactivityTimer?.cancel();
+          _inactivityTimer = Timer(Duration(seconds: inactivityTimeout), () {
+            _isTripOngoing = false;
+            _speedInfo = "Trip ended. Device is stationary.";
+            print("Trip ended");
+
+            if (_isAppInForeground) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _showEndOfTripDialog(context);
+      }
+    });
+  } else {
+    // Push a local notification as the app is not in the foreground
+    notificationService.showNotification(
+      id: 0,
+      title: 'Trip Completed',
+      body: 'Were you the driver for this trip?',
+      payLoad: 'tripEnded',
+    );
+  }
+          });
+        }
+      } else if (_isTripOngoing) {
+        // Update speed info without changing trip state
+        _speedInfo = "Speed: ${speedInMph.toStringAsFixed(2)} mph";
+      }
+    }); 
+  });
+}
+
+void _showEndOfTripDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Trip Completed'),
+          content: const Text('Were you the driver for this trip?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); 
+              },
+              child: const Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('No'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

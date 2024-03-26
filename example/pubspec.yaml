@@ -13,6 +13,8 @@ dependencies:
   group_button: ^5.3.4
   url_launcher: ^6.2.5
   flutter_pw_validator: ^1.6.0
+  geolocator: ^11.0.0
+  flutter_local_notifications: ^17.0.0
   flutter:
     sdk: flutter
 
