@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:telematics_sdk_example/services/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:telematics_sdk_example/screens/physicianUI/physician_home_screen.dart';
@@ -28,6 +29,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerConfirmPassword =
       TextEditingController();
+  final FocusNode _passwordFocusNode = FocusNode();
   final UnifiedAuthService _auth = UnifiedAuthService();
 
   String email = '';
@@ -36,6 +38,25 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
   String lastName = '';
   String phone = '';
   // String clientId = '';
+
+  bool _showPasswordValidator = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordFocusNode.addListener(() {
+      setState(() {
+        _showPasswordValidator = _passwordFocusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _controllerPassword.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
 
   Widget _decoration() {
     return Stack(
@@ -176,7 +197,6 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
       ],
     );
   }
-
 
   Widget _signInDecoration() {
     return Stack(
@@ -322,7 +342,9 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     return Align(
       alignment: Alignment.center,
       child: Padding(
-        padding: isLogin ? const EdgeInsets.only(top: 300, left: 20, right: 20) : const EdgeInsets.only(top: 100, left: 20, right: 20) ,
+        padding: isLogin
+            ? const EdgeInsets.only(top: 300, left: 20, right: 20)
+            : const EdgeInsets.only(top: 100, left: 20, right: 20),
         child: Column(
           children: [
             Text(
@@ -343,10 +365,8 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     );
   }
 
-  Widget _entryField(
-    String title,
-    TextEditingController controller,
-  ) {
+  Widget _entryField(String title, TextEditingController controller,
+      {FocusNode? focusNode}) {
     return Padding(
       padding: const EdgeInsets.only(left: 0),
       child: SizedBox(
@@ -354,6 +374,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
         width: 300,
         child: TextField(
           controller: controller,
+          focusNode: focusNode,
           // autofocus: false,
           decoration: InputDecoration(
             hintText: title,
@@ -364,6 +385,29 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _phoneField(
+    String title,
+    TextEditingController controller,
+  ) {
+    return Padding(
+      // Seperate from last_name field.
+      padding: const EdgeInsets.only(top: 15),
+      child: SizedBox(
+          height: 60,
+          width: 300,
+          child: IntlPhoneField(
+              decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  )),
+              initialCountryCode: 'US',
+              onChanged: (phone) {
+                print(phone.completeNumber);
+              })),
     );
   }
 
@@ -544,15 +588,14 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
       body: Stack(
         children: [
           // _decoration(),
-             _loginHeader(),
-            if (isLogin) ...[
-              _signInDecoration(),
-          // _loginHeader(),
-            ] 
-            else ...[
-               _decoration(),
-            ],
-             _loginHeader(),
+          _loginHeader(),
+          if (isLogin) ...[
+            _signInDecoration(),
+            // _loginHeader(),
+          ] else ...[
+            _decoration(),
+          ],
+          _loginHeader(),
           Column(
             // space
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -562,12 +605,12 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
               if (isLogin) ...[
                 Padding(padding: const EdgeInsets.only(bottom: 200)),
                 _entryField('EMAIL', _controllerEmail),
-                 Padding(
+                Padding(
                   padding: const EdgeInsets.only(top: 20, left: 25, right: 20),
                 ),
                 _entryField('PASSWORD', _controllerPassword),
                 _forgotPasswordLink(),
-                 Padding(
+                Padding(
                   padding: const EdgeInsets.only(top: 50, left: 25, right: 20),
                 ),
                 // Padding(padding: const EdgeInsets.only(bottom: 50)),
@@ -576,21 +619,23 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
               ] else ...[
                 Padding(padding: const EdgeInsets.only(bottom: 105)),
                 _entryField('EMAIL', _controllerEmail),
-                _entryField('PASSWORD', _controllerPassword),
-                 FlutterPwValidator(
-                    width: 300,
-                    height: 98,
-                    minLength: 8,
-                    uppercaseCharCount: 1,
-                    specialCharCount: 1,
-                    numericCharCount: 2,
-                    onSuccess: () {},
-                    controller: _controllerPassword),
+                _entryField('PASSWORD', _controllerPassword,
+                    focusNode: _passwordFocusNode),
+                if (_showPasswordValidator)
+                  FlutterPwValidator(
+                      width: 300,
+                      height: 98,
+                      minLength: 8,
+                      uppercaseCharCount: 1,
+                      specialCharCount: 1,
+                      numericCharCount: 2,
+                      onSuccess: () {},
+                      controller: _controllerPassword),
                 _passwordCheck(),
                 // _entryField('CONFIRM PASSWORD', _controllerConfirmPassword),
                 _entryField('FIRST NAME', _controllerFirstName),
                 _entryField('LAST NAME', _controllerLastName),
-                _entryField('PHONE', _controllerPhone),
+                _phoneField('PHONE', _controllerPhone),
                 _entryField('NPI', _controllerNPI),
                 _entryField('ORG. NAME', _controllerOrgName),
                 _submitButton(),
