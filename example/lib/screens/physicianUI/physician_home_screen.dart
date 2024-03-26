@@ -3,7 +3,7 @@ import 'package:telematics_sdk_example/screens/physicianUI/patient_display_scree
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:telematics_sdk_example/screens/physicianUI/physician_settings_screen.dart';
-import 'package:telematics_sdk_example/screens/patientUI/tutorial_screen.dart';
+import 'package:telematics_sdk_example/screens/physicianUI/physician_tutorial_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import "dart:collection";

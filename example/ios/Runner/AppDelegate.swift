@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
 import RaxelPulse
-
+import flutter_local_notifications
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
   override func application(
@@ -10,7 +10,9 @@ import RaxelPulse
   ) -> Bool {
       RPEntry.initialize(withRequestingPermissions: false)
 
-
+  if #available(iOS 10.0, *) {
+      UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
+    }
    
 
       let options = launchOptions ?? [:]

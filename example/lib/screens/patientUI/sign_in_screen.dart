@@ -55,7 +55,6 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
         if (items.isNotEmpty && physicianUid == null) {
           physicianUid = items.first.value;
         }
-        print(physicianItems);
       });
     } catch (e) {
       print("Error loading physicians: $e");
@@ -364,7 +363,7 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
           await _auth.login(deviceToken);
 
           if (!mounted) return;
-// Perform the role check after successful sign-in
+          // Perform the role check after successful sign-in
           String role = await _auth.checkUserRole(user.uid!);
           if (role == 'Patient') {
             Navigator.of(context).pushReplacement(
@@ -412,23 +411,20 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
             // Stop loading
           }
           setState(() => isLoading = false);
-        } 
-        else if (role == 'Physician') {
-            // If the role is Physician, but this sign-in method is for Patients,
-            // you might want to show an error or redirect to the Physician sign-in page
-            setState(() {
-              isLoading = false;
-             _snackBar('Physicians are not allowed to sign in here.');
-            });
-      } 
-        else {
+        } else if (role == 'Physician') {
+          // If the role is Physician, but this sign-in method is for Patients,
+          // you might want to show an error or redirect to the Physician sign-in page
+          setState(() {
+            isLoading = false;
+            _snackBar('Physicians are not allowed to sign in here.');
+          });
+        } else {
           throw Exception('Device token could not be retrieved.');
         }
-      }
-      else {
+      } else {
         // throw Exception(
         //     'Failed to sign in. Please check your email and password.');
-             _snackBar('Failed to sign in. Please check your email and password.');
+        _snackBar('Failed to sign in. Please check your email and password.');
       }
     } catch (e) {
       setState(() {
@@ -438,9 +434,9 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     }
   }
 
-void _snackBar(String error){
+  void _snackBar(String error) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
-}
+  }
   // Widget _errorMessage() {
   //   return Text(errorMessage == '' ? '' : 'Humm ? $errorMessage');
   // }

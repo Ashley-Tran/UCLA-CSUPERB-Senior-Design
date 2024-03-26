@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:telematics_sdk_example/services/auth.dart';
-
 import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 class PatientProfileScreen extends StatefulWidget {
   PatientProfileScreen({Key? key}) : super(key: key);
@@ -87,6 +85,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     if (doc != null) {
       setState(() {
         physician = doc;
+        print(physician);
       });
     }
   }
@@ -115,6 +114,22 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
     }
   }
 
+  Widget _infoItem(String text1, String text2) {
+    return RichText(
+      text: TextSpan(
+        style: const TextStyle(
+            fontSize: 16.0,
+            // color: Colors.black,
+            color: Color.fromARGB(255, 4, 27, 63)),
+        children: <TextSpan>[
+          TextSpan(
+              text: text1, style: const TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: text2),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,7 +150,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
         body: Stack(
           children: [
             ListView(
-                padding: const EdgeInsets.only(left: 10, top: 10),
+                padding: const EdgeInsets.only(left: 10, top: 10, bottom: 50),
                 children: [
                   Text("Basic Information",
                       style: TextStyle(
@@ -145,15 +160,48 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                 ]),
             ListView(
               shrinkWrap: true,
-              padding: const EdgeInsets.only(left: 40, top: 50),
+              padding: const EdgeInsets.only(left: 20, top: 60),
               children: [
-                Text('Email: ${user?.email ?? 'User email'}',
-                    style: TextStyle(fontSize: 16)),
-                Text("Physician: ${physician}", style: TextStyle(fontSize: 16)),
-                if (hasBirthday) ...[
-                  Text("Birthday: ${birthday}", style: TextStyle(fontSize: 16)),
+                _infoItem('Email: ', '${user?.email} '),
+                _infoItem('Physician: ', '${physician} '),
+                if (hasGender) ...[
+                  _infoItem('Gender: ', '${gender}')
                 ] else ...[
-                  Padding(padding: EdgeInsets.only(right: 20),),
+                  ExpansionTile(
+                    title: Text('Add Gender'),
+                    trailing: Icon(
+                      Icons.create,
+                    ),
+                    children: <Widget>[
+                      DropdownButtonFormField<String>(
+                        value: _selectedGender,
+                        decoration: const InputDecoration(labelText: 'Gender'),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedGender = newValue;
+                            if (_selectedGender != null) {
+                              _auth.addGender(_selectedGender);
+                            }
+                          });
+                        },
+                        items: _genderOptions
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        // onChanged: ,
+                      ),
+                    ],
+                  )
+                ],
+                if (hasBirthday) ...[
+                  _infoItem('Birthday: ', '${birthday}')
+                ] else ...[
+                  Padding(
+                    padding: EdgeInsets.only(right: 20),
+                  ),
                   ExpansionTile(
                       title: Text('Add Birthday'),
                       trailing: Icon(
@@ -171,64 +219,38 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                         ),
                       ]),
                 ],
-                if (hasGender) ...[
-                  Text("Gender: ${gender}", style: TextStyle(fontSize: 15)),
-                ] else ...[
-                  //  Padding(padding: EdgeInsets.only(right: 40),),
-                  ExpansionTile(
-                    title: Text('Add Gender'),
-                    trailing: Icon(
-                      Icons.create,
-                    ),
-                    children: <Widget>[
-                      DropdownButtonFormField<String>(
-                        value: _selectedGender,
-                        decoration: const InputDecoration(labelText: 'Gender'),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _selectedGender = newValue;
-                            if(_selectedGender != null){
-                                 _auth.addGender(_selectedGender);
-                            }
-                            // _auth.addGender(newValue);
-                          });
-                        },
-                        items: _genderOptions
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        // onChanged: ,
-                      ),
-                    ],
-                  )
-                ],
-                ExpansionTile(
-                  title: Text('Change Password'),
-                  trailing: Icon(
-                    Icons.create,
-                  ),
-                  children: <Widget>[
-                    TextFormField(
-                      controller: _newPasswordController,
-                      decoration:
-                          const InputDecoration(labelText: 'New Password'),
-                      obscureText: true,
-                    ),
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      decoration: const InputDecoration(
-                          labelText: 'Confirm New Password'),
-                      obscureText: true,
-                    ),
-                    TextButton(
-                      child: Text("Change Password"),
-                      onPressed: updateUserPassword,
-                    ),
-                  ],
-                ),
+                Theme(
+                    data:
+                        ThemeData().copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      title: Text('Change Password',
+                          style:
+                              TextStyle(color: Color.fromARGB(255, 4, 27, 63))),
+                      trailing: Icon(Icons.create,
+                          color: const Color.fromARGB(255, 68, 68, 68)),
+                      childrenPadding: EdgeInsets.only(right: 25, left: 25),
+                      children: <Widget>[
+                        TextFormField(
+                          controller: _newPasswordController,
+                          decoration:
+                              const InputDecoration(labelText: 'New Password'),
+                          obscureText: true,
+                        ),
+                        TextFormField(
+                          controller: _confirmPasswordController,
+                          decoration: const InputDecoration(
+                              labelText: 'Confirm New Password'),
+                          obscureText: true,
+                        ),
+                        TextButton(
+                          child: Text("Change Password",
+                              style: TextStyle(
+                                  color:
+                                      const Color.fromARGB(255, 49, 121, 179))),
+                          onPressed: updateUserPassword,
+                        ),
+                      ],
+                    )),
               ],
             )
           ],

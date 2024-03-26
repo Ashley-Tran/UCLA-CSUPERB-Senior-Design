@@ -383,15 +383,48 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
             ),
             validator: (String? value) {
               if (value == null || value.isEmpty) {
-                return 'Please re-enter password';
+                _snackBar('Please re-enter password');
               }
               if (_controllerPassword.text != _controllerConfirmPassword.text) {
-                return "Password does not match";
+                _snackBar("Password does not match");
               }
               return null;
             },
           ),
         ));
+  }
+
+  // Widget _phoneField(TextEditingController controller) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(left: 0),
+  //     child: SizedBox(
+  //       height: 45,
+  //       width: 300,
+  //       child: TextField(
+  //         controller: controller,
+  //         decoration: InputDecoration(
+  //           hintText: "PHONE",
+  //           focusedBorder: UnderlineInputBorder(
+  //             borderSide:
+  //                 BorderSide(color: const Color.fromARGB(255, 4, 27, 63)),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+ Widget phoneCheck(TextEditingController controller) {
+    if (controller.text.length != 10) {
+      _snackBar("Phone number should be 10 digits");
+      controller.text = "";
+    }
+    final regex = RegExp(r'^[0-9]+$');
+    if (!regex.hasMatch(controller.text)) {
+      _snackBar('Please enter a valid phone number (10 digits, only numbers)');
+          controller.text = "";
+    }
+    return Text("");
   }
 
 // Displays link and calls UnifiedAuthService method to send reset email
@@ -489,7 +522,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     }
   }
 
-bool hasError = false; 
+  bool hasError = false;
   Future<void> _signIn() async {
     try {
       setState(() => isLoading = true);
@@ -508,13 +541,12 @@ bool hasError = false;
         } else {
           setState(() {
             isLoading = false;
-    
+
             _snackBar("Only physicians can sign in here.");
           });
         }
       } else {
-         _snackBar('Failed to sign in. Please check your email and password.');
-       
+        _snackBar('Failed to sign in. Please check your email and password.');
       }
     } catch (e) {
       setState(() {
@@ -524,9 +556,9 @@ bool hasError = false;
     }
   }
 
-void _snackBar(String error){
+  void _snackBar(String error) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
-}
+  }
 
   Widget _loginOrRegisterButton() {
     return Padding(
@@ -585,7 +617,6 @@ void _snackBar(String error){
                 // Padding(padding: const EdgeInsets.only(bottom: 50)),
                 _submitButton(),
                 _loginOrRegisterButton(),
-                
               ] else ...[
                 Padding(padding: const EdgeInsets.only(bottom: 105)),
                 _entryField('EMAIL', _controllerEmail),
@@ -604,11 +635,11 @@ void _snackBar(String error){
                 _entryField('FIRST NAME', _controllerFirstName),
                 _entryField('LAST NAME', _controllerLastName),
                 _entryField('PHONE', _controllerPhone),
+                // phoneCheck(_controllerPhone),
                 _entryField('NPI', _controllerNPI),
                 _entryField('ORG. NAME', _controllerOrgName),
                 _submitButton(),
                 _loginOrRegisterButton(),
-              
               ],
             ],
           ),

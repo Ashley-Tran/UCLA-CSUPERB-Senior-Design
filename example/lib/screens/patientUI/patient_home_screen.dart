@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 import 'package:telematics_sdk/telematics_sdk.dart';
 import 'package:telematics_sdk_example/screens/patientUI/settings_screen.dart';
 import 'package:telematics_sdk_example/screens/patientUI/tutorial_screen.dart';

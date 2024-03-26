@@ -22,6 +22,11 @@ class _PhysicianProfileScreenState extends State<PhysicianProfileScreen> {
 
   String physician = "";
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
 //Change password
   Future<void> updateUserPassword() async {
     if (_newPasswordController.text.trim() ==
@@ -88,38 +93,53 @@ class _PhysicianProfileScreenState extends State<PhysicianProfileScreen> {
                     padding: EdgeInsets.only(left: 40, right: 40),
                     child: Text('Verified NPI: ###########',
                         style: TextStyle(fontSize: 15))),
+                Theme(
+                    data:
+                        ThemeData().copyWith(dividerColor: Colors.transparent),
+                    child: Padding(
+                        padding: EdgeInsets.only(left: 20, right: 20),
+                        child: ExpansionTile(
+                          title: Text('Change Password'),
+                          trailing: Icon(
+                            Icons.create,
+                          ),
+                          children: <Widget>[
+                            TextFormField(
+                              controller: _newPasswordController,
+                              decoration: const InputDecoration(
+                                  labelText: 'New Password'),
+                              obscureText: true,
+                            ),
+                            TextFormField(
+                              controller: _confirmPasswordController,
+                              decoration: const InputDecoration(
+                                  labelText: 'Confirm New Password'),
+                              obscureText: true,
+                            ),
+                            TextButton(
+                              child: Text("Change Password",
+                                  style: TextStyle(color: Colors.blue)),
+                              onPressed: updateUserPassword,
+                            ),
+                          ],
+                        ))),
                 Padding(
-                    padding: EdgeInsets.only(left: 40, right: 40),
-                    child: TextFormField(
-                      controller: _newPasswordController,
-                      decoration:
-                          const InputDecoration(labelText: 'New Password'),
-                      obscureText: true,
-                    )),
-                Padding(
-                    padding: EdgeInsets.only(left: 40, right: 40),
-                    child: TextFormField(
-                      controller: _confirmPasswordController,
-                      decoration: const InputDecoration(
-                        labelText: 'Confirm New Password',
-                      ),
-                      obscureText: true,
-                    )),
-                TextButton(
-                  child: Text("Change Password"),
-                  onPressed: updateUserPassword,
+                  padding: EdgeInsets.only(left: 25, top: 40),
                 ),
-                Text("Preferred Unit of Measurement",textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
-                Padding(padding: EdgeInsets.only(left:25), child:
-                Row(children: [
-                GroupButton(
-                  isRadio:true,
-                  buttons: ['km/hr', 'mi/hr']),
-                GroupButton(isRadio:true, buttons: ['12hr', '24hr'],)
-                ]),
+                Text("Preferred Unit of Measurement",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Padding(
+                  padding: EdgeInsets.only(left: 25, top: 40),
+                  child: Row(children: [
+                    GroupButton(isRadio: true, buttons: ['km/hr', 'mi/hr']),
+                    GroupButton(
+                      isRadio: true,
+                      buttons: ['12hr', '24hr'],
+                    )
+                  ]),
                 ),
               ],
-           
             )
           ],
         ));
