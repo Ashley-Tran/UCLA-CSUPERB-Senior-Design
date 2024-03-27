@@ -10,13 +10,18 @@ import RaxelPulse
   ) -> Bool {
       RPEntry.initialize(withRequestingPermissions: false)
 
-
+      FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { (registry) in
+    GeneratedPluginRegistrant.register(with: registry)}
    
 
       let options = launchOptions ?? [:]
       RPEntry.application(application, didFinishLaunchingWithOptions: options)
       
       GeneratedPluginRegistrant.register(with: self)
+
+      if #available(iOS 10.0, *) {
+         UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+      }
       return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }
