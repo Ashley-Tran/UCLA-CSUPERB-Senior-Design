@@ -20,6 +20,8 @@ dependencies:
     path: ../
   uuid: ^4.3.2
   flutter_local_notifications: ^17.0.0
+  geolocator: ^11.0.0
+  intl_phone_field: ^3.2.0
 
 flutter:
   assets:

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:telematics_sdk_example/services/auth.dart';
 import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
+import 'package:flutter_pw_validator/flutter_pw_validator.dart';
 
 class PatientProfileScreen extends StatefulWidget {
   PatientProfileScreen({Key? key}) : super(key: key);
@@ -27,13 +28,19 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
   String gender = "";
   bool hasGender = false;
   // String? physician = "";
-
+  final FocusNode _passwordFocusNode = FocusNode();
+  bool _showPasswordValidator = false;
   @override
   void initState() {
     super.initState();
     _displayPhysician();
     _displayBirthday();
     _displayGender();
+    _passwordFocusNode.addListener(() {
+    setState(() {
+      _showPasswordValidator = _passwordFocusNode.hasFocus;
+    });
+        });
   }
 
 //Change password
@@ -172,6 +179,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                     trailing: Icon(
                       Icons.create,
                     ),
+                    // onExpansionChanged: 
                     children: <Widget>[
                       DropdownButtonFormField<String>(
                         value: _selectedGender,
@@ -224,6 +232,7 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                         ThemeData().copyWith(dividerColor: Colors.transparent),
                     child: ExpansionTile(
                       title: Text('Change Password',
+                          
                           style:
                               TextStyle(color: Color.fromARGB(255, 4, 27, 63))),
                       trailing: Icon(Icons.create,
@@ -235,12 +244,26 @@ class _PatientProfileScreenState extends State<PatientProfileScreen> {
                           decoration:
                               const InputDecoration(labelText: 'New Password'),
                           obscureText: true,
+                          focusNode: _passwordFocusNode,
                         ),
+                        if (_showPasswordValidator) ...[
+                          FlutterPwValidator(
+                              width: 300,
+                              height: 98,
+                              minLength: 8,
+                              uppercaseCharCount: 1,
+                              specialCharCount: 1,
+                              numericCharCount: 2,
+                              onSuccess: () {},
+                              controller: _newPasswordController),
+                        ],
                         TextFormField(
                           controller: _confirmPasswordController,
                           decoration: const InputDecoration(
                               labelText: 'Confirm New Password'),
                           obscureText: true,
+                        
+                    
                         ),
                         TextButton(
                           child: Text("Change Password",

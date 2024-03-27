@@ -4,6 +4,7 @@ import 'package:telematics_sdk_example/services/auth.dart';
 import 'package:group_button/group_button.dart';
 import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
 // import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_pw_validator/flutter_pw_validator.dart';
 
 class PhysicianProfileScreen extends StatefulWidget {
   PhysicianProfileScreen({Key? key}) : super(key: key);
@@ -19,12 +20,18 @@ class _PhysicianProfileScreenState extends State<PhysicianProfileScreen> {
   final UnifiedAuthService _auth = UnifiedAuthService();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-
+  final FocusNode _passwordFocusNode = FocusNode();
   String physician = "";
+  bool _showPasswordValidator = false;
 
   @override
   void initState() {
     super.initState();
+    _passwordFocusNode.addListener(() {
+      setState(() {
+        _showPasswordValidator = _passwordFocusNode.hasFocus;
+      });
+    });
   }
 
 //Change password
@@ -109,7 +116,18 @@ class _PhysicianProfileScreenState extends State<PhysicianProfileScreen> {
                               decoration: const InputDecoration(
                                   labelText: 'New Password'),
                               obscureText: true,
+                              focusNode: _passwordFocusNode,
                             ),
+                             if (_showPasswordValidator) ... [
+                  FlutterPwValidator(
+                      width: 300,
+                      height: 98,
+                      minLength: 8,
+                      uppercaseCharCount: 1,
+                      specialCharCount: 1,
+                      numericCharCount: 2,
+                      onSuccess: () {},
+                      controller: _newPasswordController),], 
                             TextFormField(
                               controller: _confirmPasswordController,
                               decoration: const InputDecoration(

@@ -25,7 +25,6 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
   final TextEditingController _controllerPassword = TextEditingController();
   final TextEditingController _controllerConfirmPassword =
       TextEditingController();
-  final TextEditingController _controllerPhysician = TextEditingController();
   final UnifiedAuthService _auth = UnifiedAuthService();
 
   String email = '';
@@ -43,10 +42,9 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     super.initState();
     physicianUid = null;
     loadPhysicians();
-    // anonymousSignInAndLoadPhysicians();
-    // birthday = DateFormat.yMd().format(DateTime.now());
   }
 
+  // grab physician records from Firebase
   void loadPhysicians() async {
     try {
       var items = await _auth.getPhysicianDropdownItems();
@@ -61,6 +59,7 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     }
   }
 
+  // border of the page and logo
   Widget _decoration() {
     return Stack(
       children: [
@@ -201,6 +200,7 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     );
   }
 
+  // Header of the screen
   Widget _loginHeader() {
     return Align(
       alignment: Alignment.center,
@@ -226,6 +226,7 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     );
   }
 
+  // Text fields for either sign in or sign up
   Widget _entryField(
     String title,
     TextEditingController controller,
@@ -237,7 +238,8 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
         width: 300,
         child: TextField(
           controller: controller,
-          // autofocus: false,
+          autofocus: false,
+          cursorColor: Color.fromARGB(255, 14, 56, 90),
           decoration: InputDecoration(
             hintText: title,
             focusedBorder: UnderlineInputBorder(
@@ -250,10 +252,10 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     );
   }
 
+  // DOESN"T WORK
   Widget _passwordCheck() {
     return Padding(
         padding: const EdgeInsets.only(left: 0),
-        // padding: const EdgeInsets.symmetric(horizontal: 40.0),
         child: SizedBox(
           height: 60,
           width: 300,
@@ -265,7 +267,7 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
             ),
             validator: (String? value) {
               if (value == null || value.isEmpty) {
-                return 'Please re-enter password';
+                _snackBar('Please re-enter password');
               }
               if (_controllerPassword.text != _controllerConfirmPassword.text) {
                 return "Password does not match";
@@ -317,10 +319,10 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     return Padding(
       padding: const EdgeInsets.only(left: 25, right: 20),
       child: SizedBox(
-        // return SizedBox(
         height: 50,
         width: 350,
         child: FilledButton(
+          // call _signIn function or create new user function depending on screen displayed
           onPressed: isLogin ? _signIn : createUserWithEmailAndPassword,
           style: FilledButton.styleFrom(
             backgroundColor: (Color.fromARGB(255, 103, 139, 183)),
@@ -344,21 +346,21 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
   Future<void> createUserWithEmailAndPassword() async {
     try {
       setState(() => isLoading = true);
+      // register user in FireBase w/ filled out fields
       AppUser? user = await _auth.registerPatient(
         email: _controllerEmail.text,
         password: _controllerPassword.text,
         gender: "",
         birthday: "",
-        // physician: _controllerPhysician.text,
         physician: physician,
         physicianID: physicianUid!,
       );
-
+      // if registration is successful, grab device token
       if (user != null) {
         String? deviceToken = await _auth.getDeviceTokenForUser(user.uid, true);
 
         if (!mounted) return;
-
+        // use the device token to login - needed for tracking
         if (deviceToken != null) {
           await _auth.login(deviceToken);
 
@@ -388,17 +390,19 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
   Future<void> _signIn() async {
     try {
       setState(() => isLoading = true);
+      // sign in with the credientials
       AppUser? user = await _auth.signInWithEmailAndPassword(
           _controllerEmail.text, _controllerPassword.text);
 
       if (!mounted) return;
-
+      // if FireBase user is retrieved successfully check role
       if (user != null) {
         if (!mounted) return;
         String role = await _auth.checkUserRole(user.uid!);
 
         if (!mounted) return;
         if (role == 'Patient') {
+          // if it is a patient grab the token & login
           String? deviceToken =
               await _auth.getDeviceTokenForUser(user.uid, false);
           if (deviceToken != null) {
@@ -407,7 +411,6 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
             if (!mounted) return;
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => PatientHomeScreen()));
-
             // Stop loading
           }
           setState(() => isLoading = false);
@@ -422,8 +425,6 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
           throw Exception('Device token could not be retrieved.');
         }
       } else {
-        // throw Exception(
-        //     'Failed to sign in. Please check your email and password.');
         _snackBar('Failed to sign in. Please check your email and password.');
       }
     } catch (e) {
@@ -437,36 +438,42 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
   void _snackBar(String error) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
   }
-  // Widget _errorMessage() {
-  //   return Text(errorMessage == '' ? '' : 'Humm ? $errorMessage');
-  // }
 
   Widget _loginOrRegisterButton() {
     return Padding(
       padding: const EdgeInsets.only(top: 20, right: 100),
+      // Link to change to sign up/sign in page
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            isLogin = !isLogin;
-          });
-        },
-        child: Text(
-          isLogin
-              ? 'Don\'t have an account? Sign up.'
-              : 'Already have an account? Sign in.',
-          style: TextStyle(
-            color: const Color.fromARGB(255, 23, 111, 182),
-            // decoration: TextDecoration.underline,
-            fontSize: 15,
-          ),
-        ),
-      ),
+          onTap: () {
+            setState(() {
+              isLogin = !isLogin;
+            });
+          },
+          child: RichText(
+            text: TextSpan(
+              style: const TextStyle(
+                  fontSize: 16.0, color: Color.fromARGB(255, 4, 27, 63)),
+              children: <TextSpan>[
+                TextSpan(
+                  text: isLogin
+                      ? 'Don\'t have an account? '
+                      : 'Already have an account? ',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: const Color.fromARGB(255, 23, 111, 182),
+                  ),
+                ),
+                TextSpan(
+                    text: isLogin ? 'Sign up.' : 'Sign in.',
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      fontSize: 15,
+                      color: const Color.fromARGB(255, 23, 111, 182),
+                    )),
+              ],
+            ),
+          )),
     );
-  }
-
-  void _showSnackBar(String text) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   @override
@@ -474,22 +481,17 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // BackButton(),
           _decoration(),
           _loginHeader(),
           Column(
-            // space
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              // Padding(padding: const EdgeInsets.only(bottom: 300)),
+              // display for sign in screen
               if (isLogin) ...[
                 Padding(padding: const EdgeInsets.only(bottom: 200)),
-                // Padding(padding:)
                 _entryField('EMAIL', _controllerEmail),
-                // _email(_controllerEmail),
                 _entryField('PASSWORD', _controllerPassword),
-                // _errorMessage(),
                 _forgotPasswordLink(),
                 Padding(
                   padding: const EdgeInsets.only(top: 50, left: 25, right: 20),
@@ -497,6 +499,7 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
                 _submitButton(),
                 _loginOrRegisterButton(),
               ] else ...[
+                // display for sign up screen
                 Padding(padding: const EdgeInsets.only(bottom: 250)),
                 _entryField('EMAIL', _controllerEmail),
                 _entryField('PASSWORD', _controllerPassword),
@@ -510,7 +513,6 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
                     onSuccess: () {},
                     controller: _controllerPassword),
                 _passwordCheck(),
-
                 DropdownButtonFormField<String>(
                   padding: EdgeInsets.symmetric(horizontal: 40),
                   value: physicianUid,
@@ -531,7 +533,6 @@ class _PatientSignInScreenState extends State<PatientSignInScreen> {
                       : null,
                   items: physicianItems,
                 ),
-                // _entryField('PHYSICIAN', _controllerPhysician),
                 Padding(
                   padding: const EdgeInsets.only(top: 30, left: 25, right: 20),
                 ),

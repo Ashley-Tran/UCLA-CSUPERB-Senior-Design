@@ -1,5 +1,718 @@
+// import 'dart:async';
+// import 'package:flutter/material.dart';
+// import 'package:telematics_sdk_example/services/user.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:telematics_sdk_example/screens/physicianUI/physician_home_screen.dart';
+// import 'package:telematics_sdk_example/services/UnifiedAuthService.dart';
+// import 'package:flutter_pw_validator/flutter_pw_validator.dart';
+// import 'package:intl_phone_field/intl_phone_field.dart';
+
+// class PhysicianSignInScreen extends StatefulWidget {
+//   const PhysicianSignInScreen({Key? key}) : super(key: key);
+
+//   @override
+//   State<PhysicianSignInScreen> createState() => _PhysicianSignInScreenState();
+// }
+
+// class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
+//   String? errorMessage = ' ';
+//   bool isLogin = true;
+//   bool isConfirmed = false;
+//   bool isLoading = false;
+
+//   final TextEditingController _controllerFirstName = TextEditingController();
+//   final TextEditingController _controllerLastName = TextEditingController();
+//   final TextEditingController _controllerOrgName = TextEditingController();
+//   final TextEditingController _controllerNPI = TextEditingController();
+//   final TextEditingController _controllerPhone = TextEditingController();
+//   final TextEditingController _controllerPassword = TextEditingController();
+//   final TextEditingController _controllerEmail = TextEditingController();
+//   final TextEditingController _controllerConfirmPassword =
+//       TextEditingController();
+//   final UnifiedAuthService _auth = UnifiedAuthService();
+
+//   final FocusNode _passwordFocusNode = FocusNode();
+//   String email = '';
+//   String password = '';
+//   String firstName = '';
+//   String lastName = '';
+//   String phone = '';
+//   // String clientId = '';
+
+// bool _showPasswordValidator = false;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _passwordFocusNode.addListener(() {
+//       setState(() {
+//         _showPasswordValidator = _passwordFocusNode.hasFocus;
+//       });
+//     });
+//   }
+
+//   Widget _decoration() {
+//     return Stack(
+//       children: [
+//         Positioned(
+//           child: Padding(
+//             padding:
+//                 const EdgeInsets.only(top: 40, bottom: 15, right: 10, left: 10),
+//             child: Container(
+//               decoration: BoxDecoration(
+//                 border: Border.all(
+//                   color: (const Color.fromARGB(255, 4, 27, 63))!,
+//                   width: 5,
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//         // This is that invisible rectangle at the top left.
+//         Positioned(
+//           top: 28,
+//           left: -100,
+//           child: Container(
+//             height: 175,
+//             width: 175,
+//             decoration: const BoxDecoration(
+//               color: Color.fromARGB(255, 255, 255, 255),
+//               shape: BoxShape.rectangle,
+//             ),
+//           ),
+//         ),
+//         // This is that invisible rectangle at the bottom right.
+//         Positioned(
+//           bottom: -45,
+//           right: -13,
+//           child: Container(
+//             height: 175,
+//             width: 175,
+//             decoration: const BoxDecoration(
+//               color: Colors.white,
+//               shape: BoxShape.rectangle,
+//             ),
+//           ),
+//         ),
+//         // This is for the blue ball-top left.
+//         Positioned(
+//           top: 30.0,
+//           left: -40.0,
+//           child: Container(
+//             height: 125,
+//             width: 125,
+//             decoration: BoxDecoration(
+//               color: (const Color.fromARGB(255, 4, 27, 63)),
+//               shape: BoxShape.circle,
+//               border: Border.all(
+//                 color: Colors.white,
+//                 width: 3.0,
+//               ),
+//             ),
+//             child: BackButton(color: Colors.white),
+//           ),
+//         ),
+//         // This is for the beige ball-top left.
+//         Positioned(
+//           top: 100.0,
+//           left: -40.0,
+//           child: Container(
+//             height: 95,
+//             width: 95,
+//             decoration: BoxDecoration(
+//               color: (const Color.fromARGB(255, 200, 195, 146)),
+//               shape: BoxShape.circle,
+//               border: Border.all(
+//                 color: Colors.white,
+//                 width: 3.0,
+//               ),
+//             ),
+//           ),
+//         ),
+//         // This is for the blue ball-bottom right.
+//         Positioned(
+//           bottom: -80.0,
+//           right: -80.0,
+//           child: Container(
+//             height: 200,
+//             width: 200,
+//             decoration: BoxDecoration(
+//               color: (const Color.fromARGB(255, 4, 27, 63)),
+//               shape: BoxShape.circle,
+//               border: Border.all(
+//                 color: Colors.white,
+//                 width: 3.0,
+//               ),
+//             ),
+//           ),
+//         ),
+//         // This is for the beige ball-bottom right.
+//         Positioned(
+//           bottom: -50.0,
+//           right: 50.0,
+//           child: Container(
+//             height: 100,
+//             width: 100,
+//             decoration: BoxDecoration(
+//               color: (const Color.fromARGB(255, 200, 195, 146)),
+//               shape: BoxShape.circle,
+//               border: Border.all(
+//                 color: Colors.white,
+//                 width: 3.0,
+//               ),
+//             ),
+//           ),
+//         ),
+//         // This belongs to the car logo.
+//         // Positioned(
+//         //   top: 100.0,
+//         //   right: 120,
+//         //   child: Center(
+//         //     child: Column(
+//         //       mainAxisAlignment: MainAxisAlignment.center,
+//         //       children: [
+//         //         Container(
+//         //           child: ColorFiltered(
+//         //             colorFilter: const ColorFilter.mode(
+//         //               Color.fromARGB(255, 103, 139, 183),
+//         //               BlendMode.srcIn,
+//         //             ),
+//         //             child: Image.asset(
+//         //               'assets/images/road.png',
+//         //               height: 150,
+//         //             ),
+//         //           ),
+//         //         ),
+//         //       ],
+//         //     ),
+//         //   ),
+//         // ),
+//       ],
+//     );
+//   }
+
+//   Widget _signInDecoration() {
+//     return Stack(
+//       children: [
+//         Positioned(
+//           child: Padding(
+//             padding:
+//                 const EdgeInsets.only(top: 40, bottom: 15, right: 10, left: 10),
+//             child: Container(
+//               decoration: BoxDecoration(
+//                 border: Border.all(
+//                   color: (const Color.fromARGB(255, 4, 27, 63))!,
+//                   width: 5,
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//         // This is that invisible rectangle at the top left.
+//         Positioned(
+//           top: 28,
+//           left: -100,
+//           child: Container(
+//             height: 175,
+//             width: 175,
+//             decoration: const BoxDecoration(
+//               color: Color.fromARGB(255, 255, 255, 255),
+//               shape: BoxShape.rectangle,
+//             ),
+//           ),
+//         ),
+//         // This is that invisible rectangle at the bottom right.
+//         Positioned(
+//           bottom: -45,
+//           right: -13,
+//           child: Container(
+//             height: 175,
+//             width: 175,
+//             decoration: const BoxDecoration(
+//               color: Colors.white,
+//               shape: BoxShape.rectangle,
+//             ),
+//           ),
+//         ),
+//         // This is for the blue ball-top left.
+//         Positioned(
+//           top: 30.0,
+//           left: -40.0,
+//           child: Container(
+//             height: 125,
+//             width: 125,
+//             decoration: BoxDecoration(
+//               color: (const Color.fromARGB(255, 4, 27, 63)),
+//               shape: BoxShape.circle,
+//               border: Border.all(
+//                 color: Colors.white,
+//                 width: 3.0,
+//               ),
+//             ),
+//             child: BackButton(color: Colors.white),
+//           ),
+//         ),
+//         // This is for the beige ball-top left.
+//         Positioned(
+//           top: 100.0,
+//           left: -40.0,
+//           child: Container(
+//             height: 95,
+//             width: 95,
+//             decoration: BoxDecoration(
+//               color: (const Color.fromARGB(255, 200, 195, 146)),
+//               shape: BoxShape.circle,
+//               border: Border.all(
+//                 color: Colors.white,
+//                 width: 3.0,
+//               ),
+//             ),
+//           ),
+//         ),
+//         // This is for the blue ball-bottom right.
+//         Positioned(
+//           bottom: -80.0,
+//           right: -80.0,
+//           child: Container(
+//             height: 200,
+//             width: 200,
+//             decoration: BoxDecoration(
+//               color: (const Color.fromARGB(255, 4, 27, 63)),
+//               shape: BoxShape.circle,
+//               border: Border.all(
+//                 color: Colors.white,
+//                 width: 3.0,
+//               ),
+//             ),
+//           ),
+//         ),
+//         // This is for the beige ball-bottom right.
+//         Positioned(
+//           bottom: -50.0,
+//           right: 50.0,
+//           child: Container(
+//             height: 100,
+//             width: 100,
+//             decoration: BoxDecoration(
+//               color: (const Color.fromARGB(255, 200, 195, 146)),
+//               shape: BoxShape.circle,
+//               border: Border.all(
+//                 color: Colors.white,
+//                 width: 3.0,
+//               ),
+//             ),
+//           ),
+//         ),
+//         // This belongs to the car logo.
+//         Positioned(
+//           top: 100.0,
+//           right: 120,
+//           child: Center(
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: [
+//                 Container(
+//                   child: ColorFiltered(
+//                     colorFilter: const ColorFilter.mode(
+//                       Color.fromARGB(255, 103, 139, 183),
+//                       BlendMode.srcIn,
+//                     ),
+//                     child: Image.asset(
+//                       'assets/images/road.png',
+//                       height: 150,
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _loginHeader() {
+//     return Align(
+//       alignment: Alignment.center,
+//       child: Padding(
+//         padding: isLogin
+//             ? const EdgeInsets.only(top: 300, left: 20, right: 20)
+//             : const EdgeInsets.only(top: 100, left: 20, right: 20),
+//         child: Column(
+//           children: [
+//             Text(
+//               isLogin ? 'Sign In' : 'Sign Up',
+//               textAlign: TextAlign.center,
+//               style: TextStyle(
+//                 fontSize: 25.0,
+//                 fontWeight: FontWeight.bold,
+//               ),
+//             ),
+//             SizedBox(
+//               height: 10,
+//               width: 100,
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   // Widget _entryField(
+//   //   String title,
+//   //   TextEditingController controller,
+//   // ) {
+//   //   return Padding(
+//   //     padding: const EdgeInsets.only(left: 0),
+//   //     child: SizedBox(
+//   //       height: 45,
+//   //       width: 300,
+//   //       child: TextField(
+//   //         controller: controller,
+//   //         // autofocus: false,
+//   //         decoration: InputDecoration(
+//   //           hintText: title,
+//   //           focusedBorder: UnderlineInputBorder(
+//   //             borderSide:
+//   //                 BorderSide(color: const Color.fromARGB(255, 4, 27, 63)),
+//   //           ),
+//   //         ),
+//   //       ),
+//   //     ),
+//   //   );
+//   // }
+
+//    Widget _entryField(String title, TextEditingController controller,
+//       {FocusNode? focusNode}) {
+//     return Padding(
+//       padding: const EdgeInsets.only(left: 0),
+//       child: SizedBox(
+//         height: 45,
+//         width: 300,
+//         child: TextField(
+//           controller: controller,
+//           focusNode: focusNode,
+//           // autofocus: false,
+//           decoration: InputDecoration(
+//             hintText: title,
+//             focusedBorder: UnderlineInputBorder(
+//               borderSide:
+//                   BorderSide(color: const Color.fromARGB(255, 4, 27, 63)),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _passwordCheck() {
+//     return Padding(
+//         padding: const EdgeInsets.only(left: 0),
+//         // padding: const EdgeInsets.symmetric(horizontal: 40.0),
+//         child: SizedBox(
+//           height: 60,
+//           width: 300,
+//           child: TextFormField(
+//             controller: _controllerConfirmPassword,
+//             obscureText: true,
+//             decoration: const InputDecoration(
+//               hintText: 'CONFIRM PASSWORD',
+//             ),
+//             validator: (String? value) {
+//               if (value == null || value.isEmpty) {
+//                 _snackBar('Please re-enter password');
+//               }
+//               if (_controllerPassword.text != _controllerConfirmPassword.text) {
+//                 _snackBar("Password does not match");
+//               }
+//               return null;
+//             },
+//           ),
+//         ));
+//   }
+
+//   // Widget _phoneField(TextEditingController controller) {
+//   //   return Padding(
+//   //     padding: const EdgeInsets.only(left: 0),
+//   //     child: SizedBox(
+//   //       height: 45,
+//   //       width: 300,
+//   //       child: TextField(
+//   //         controller: controller,
+//   //         decoration: InputDecoration(
+//   //           hintText: "PHONE",
+//   //           focusedBorder: UnderlineInputBorder(
+//   //             borderSide:
+//   //                 BorderSide(color: const Color.fromARGB(255, 4, 27, 63)),
+//   //           ),
+//   //         ),
+//   //       ),
+//   //     ),
+//   //   );
+//   // }
+
+//   Widget _phoneField(
+//     String title,
+//     TextEditingController controller,
+//   ) {
+//     return Padding(
+//       // Seperate from last_name field.
+//       padding: const EdgeInsets.only(top: 15),
+//       child: SizedBox(
+//           height: 60,
+//           width: 300,
+//           child: IntlPhoneField(
+//               decoration: InputDecoration(
+//                   labelText: 'Phone Number',
+//                   border: OutlineInputBorder(
+//                     borderSide: BorderSide(),
+//                   )),
+//               initialCountryCode: 'US',
+//               onChanged: (phone) {
+//                 print(phone.completeNumber);
+//               })),
+//     );
+//   }
+
+//  Widget phoneCheck(TextEditingController controller) {
+//     if (controller.text.length != 10) {
+//       _snackBar("Phone number should be 10 digits");
+//       controller.text = "";
+//     }
+//     final regex = RegExp(r'^[0-9]+$');
+//     if (!regex.hasMatch(controller.text)) {
+//       _snackBar('Please enter a valid phone number (10 digits, only numbers)');
+//           controller.text = "";
+//     }
+//     return Text("");
+//   }
+
+// // Displays link and calls UnifiedAuthService method to send reset email
+//   Widget _forgotPasswordLink() {
+//     return Padding(
+//       padding: const EdgeInsets.only(
+//         left: 190,
+//       ),
+//       child: GestureDetector(
+//         onTap: _resetPassword,
+//         child: Text(
+//           'Forgot Password?',
+//           style: TextStyle(
+//             color: const Color.fromARGB(255, 23, 111, 182),
+//             fontSize: 16,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   void _resetPassword() async {
+//     if (_controllerEmail.text.isNotEmpty) {
+//       email = _controllerEmail.text;
+//       try {
+//         await _auth.resetPassword(email);
+//         // Display a success message or navigate to a confirmation screen
+//         print('Password reset email sent to $email');
+//       } catch (e) {
+//         print('Failed to reset password: $e');
+//         // Handle the error appropriately, such as displaying an error message
+//       }
+//     } else {
+//       setState(() {
+//         errorMessage = 'Please enter your email to reset the password.';
+//       });
+//     }
+//   }
+
+//   Widget _submitButton() {
+//     return Padding(
+//       padding: const EdgeInsets.only(top: 30, left: 25, right: 20),
+//       child: SizedBox(
+//         height: 50,
+//         width: 350,
+//         child: FilledButton(
+//           onPressed: isLogin ? _signIn : createUserWithEmailAndPassword,
+//           style: FilledButton.styleFrom(
+//             backgroundColor: (Color.fromARGB(255, 103, 139, 183)),
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(35.0),
+//             ),
+//           ),
+//           child: Text(
+//             isLogin ? 'Sign In' : 'Sign Up',
+//             style: TextStyle(
+//               fontWeight: FontWeight.bold,
+//               fontSize: 30.0,
+//               color: (Color.fromARGB(255, 255, 255, 255)),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Future<void> createUserWithEmailAndPassword() async {
+//     try {
+//       setState(() => isLoading = true);
+//       AppUser? user = await _auth.registerPhysician(
+//         email: _controllerEmail.text,
+//         password: _controllerPassword.text,
+//         firstName: _controllerFirstName.text,
+//         lastName: _controllerLastName.text,
+//         npi: _controllerNPI.text,
+//         organizationName: _controllerOrgName.text,
+//         phone: _controllerPhone.text,
+//       );
+//       if (user != null) {
+//         if (!mounted) return;
+
+//         Navigator.of(context).pushReplacement(
+//             MaterialPageRoute(builder: (context) => PhysicianHomeScreen()));
+
+//         // Stop loading
+//         setState(() => isLoading = false);
+//       } else {
+//         throw Exception(
+//             'Failed to sign in. Please check your email and password.');
+//       }
+//     } on FirebaseAuthException catch (e) {
+//       setState(() {
+//         errorMessage = e.message;
+//       });
+//     }
+//   }
+
+//   bool hasError = false;
+//   Future<void> _signIn() async {
+//     try {
+//       setState(() => isLoading = true);
+//       AppUser? user = await _auth.signInWithEmailAndPassword(
+//           _controllerEmail.text, _controllerPassword.text);
+
+//       if (!mounted) return;
+
+//       if (user != null) {
+//         String role = await _auth.checkUserRole(user.uid!);
+//         print("here");
+//         if (!mounted) return;
+//         if (role == 'Physician') {
+//           Navigator.of(context).pushReplacement(
+//               MaterialPageRoute(builder: (context) => PhysicianHomeScreen()));
+//         } else {
+//           setState(() {
+//             isLoading = false;
+
+//             _snackBar("Only physicians can sign in here.");
+//           });
+//         }
+//       } else {
+//         _snackBar('Failed to sign in. Please check your email and password.');
+//       }
+//     } catch (e) {
+//       setState(() {
+//         errorMessage = e.toString();
+//         isLoading = false;
+//       });
+//     }
+//   }
+
+//   void _snackBar(String error) {
+//     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+//   }
+
+//   Widget _loginOrRegisterButton() {
+//     return Padding(
+//       padding: const EdgeInsets.only(top: 20, right: 100),
+//       child: GestureDetector(
+//         onTap: () {
+//           setState(() {
+//             isLogin = !isLogin;
+//           });
+//         },
+//         child: Text(
+//           isLogin
+//               ? 'Don\'t have an account? Sign up.'
+//               : 'Already have an account? Sign in.',
+//           style: TextStyle(
+//             color: const Color.fromARGB(255, 23, 111, 182),
+//             // decoration: TextDecoration.underline,
+//             fontSize: 15,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Stack(
+//         children: [
+//           // _decoration(),
+//           _loginHeader(),
+//           if (isLogin) ...[
+//             _signInDecoration(),
+//             // _loginHeader(),
+//           ] else ...[
+//             _decoration(),
+//           ],
+//           _loginHeader(),
+//           Column(
+//             // space
+//             crossAxisAlignment: CrossAxisAlignment.center,
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: <Widget>[
+//               // Padding(padding: const EdgeInsets.only(bottom: 200)),
+//               if (isLogin) ...[
+//                 Padding(padding: const EdgeInsets.only(bottom: 200)),
+//                 _entryField('EMAIL', _controllerEmail),
+//                 Padding(
+//                   padding: const EdgeInsets.only(top: 20, left: 25, right: 20),
+//                 ),
+//                 _entryField('PASSWORD', _controllerPassword,
+//                   focusNode: _passwordFocusNode),
+//                 _forgotPasswordLink(),
+//                 Padding(
+//                   padding: const EdgeInsets.only(top: 50, left: 25, right: 20),
+//                 ),
+//                 // Padding(padding: const EdgeInsets.only(bottom: 50)),
+//                 _submitButton(),
+//                 _loginOrRegisterButton(),
+//               ] else ...[
+//                 Padding(padding: const EdgeInsets.only(bottom: 105)),
+//                 _entryField('EMAIL', _controllerEmail),
+//                 _entryField('PASSWORD', _controllerPassword),
+//                 FlutterPwValidator(
+//                     width: 300,
+//                     height: 98,
+//                     minLength: 8,
+//                     uppercaseCharCount: 1,
+//                     specialCharCount: 1,
+//                     numericCharCount: 2,
+//                     onSuccess: () {},
+//                     controller: _controllerPassword),
+//                 _passwordCheck(),
+//                 // _entryField('CONFIRM PASSWORD', _controllerConfirmPassword),
+//                 _entryField('FIRST NAME', _controllerFirstName),
+//                 _entryField('LAST NAME', _controllerLastName),
+//                 // _entryField('PHONE', _controllerPhone),
+//                 phoneCheck(_controllerPhone),
+//                 _entryField('NPI', _controllerNPI),
+//                 _entryField('ORG. NAME', _controllerOrgName),
+//                 _submitButton(),
+//                 _loginOrRegisterButton(),
+//               ],
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:telematics_sdk_example/services/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:telematics_sdk_example/screens/physicianUI/physician_home_screen.dart';
@@ -28,6 +741,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerConfirmPassword =
       TextEditingController();
+  final FocusNode _passwordFocusNode = FocusNode();
   final UnifiedAuthService _auth = UnifiedAuthService();
 
   String email = '';
@@ -36,6 +750,25 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
   String lastName = '';
   String phone = '';
   // String clientId = '';
+
+  bool _showPasswordValidator = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordFocusNode.addListener(() {
+      setState(() {
+        _showPasswordValidator = _passwordFocusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _controllerPassword.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
 
   Widget _decoration() {
     return Stack(
@@ -344,10 +1077,8 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     );
   }
 
-  Widget _entryField(
-    String title,
-    TextEditingController controller,
-  ) {
+  Widget _entryField(String title, TextEditingController controller,
+      {FocusNode? focusNode}) {
     return Padding(
       padding: const EdgeInsets.only(left: 0),
       child: SizedBox(
@@ -355,6 +1086,7 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
         width: 300,
         child: TextField(
           controller: controller,
+          focusNode: focusNode,
           // autofocus: false,
           decoration: InputDecoration(
             hintText: title,
@@ -365,6 +1097,29 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _phoneField(
+    String title,
+    TextEditingController controller,
+  ) {
+    return Padding(
+      // Seperate from last_name field.
+      padding: const EdgeInsets.only(top: 15),
+      child: SizedBox(
+          height: 60,
+          width: 300,
+          child: IntlPhoneField(
+              decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  )),
+              initialCountryCode: 'US',
+              onChanged: (phone) {
+                print(phone.completeNumber);
+              })),
     );
   }
 
@@ -383,48 +1138,15 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
             ),
             validator: (String? value) {
               if (value == null || value.isEmpty) {
-                _snackBar('Please re-enter password');
+                return 'Please re-enter password';
               }
               if (_controllerPassword.text != _controllerConfirmPassword.text) {
-                _snackBar("Password does not match");
+                return "Password does not match";
               }
               return null;
             },
           ),
         ));
-  }
-
-  // Widget _phoneField(TextEditingController controller) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(left: 0),
-  //     child: SizedBox(
-  //       height: 45,
-  //       width: 300,
-  //       child: TextField(
-  //         controller: controller,
-  //         decoration: InputDecoration(
-  //           hintText: "PHONE",
-  //           focusedBorder: UnderlineInputBorder(
-  //             borderSide:
-  //                 BorderSide(color: const Color.fromARGB(255, 4, 27, 63)),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
- Widget phoneCheck(TextEditingController controller) {
-    if (controller.text.length != 10) {
-      _snackBar("Phone number should be 10 digits");
-      controller.text = "";
-    }
-    final regex = RegExp(r'^[0-9]+$');
-    if (!regex.hasMatch(controller.text)) {
-      _snackBar('Please enter a valid phone number (10 digits, only numbers)');
-          controller.text = "";
-    }
-    return Text("");
   }
 
 // Displays link and calls UnifiedAuthService method to send reset email
@@ -522,7 +1244,6 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
     }
   }
 
-  bool hasError = false;
   Future<void> _signIn() async {
     try {
       setState(() => isLoading = true);
@@ -532,21 +1253,15 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
       if (!mounted) return;
 
       if (user != null) {
-        String role = await _auth.checkUserRole(user.uid!);
-        print("here");
         if (!mounted) return;
-        if (role == 'Physician') {
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => PhysicianHomeScreen()));
-        } else {
-          setState(() {
-            isLoading = false;
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => PhysicianHomeScreen()));
 
-            _snackBar("Only physicians can sign in here.");
-          });
-        }
+        //   // Stop loading
+        setState(() => isLoading = false);
       } else {
-        _snackBar('Failed to sign in. Please check your email and password.');
+        throw Exception(
+            'Failed to sign in. Please check your email and password.');
       }
     } catch (e) {
       setState(() {
@@ -554,10 +1269,6 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
         isLoading = false;
       });
     }
-  }
-
-  void _snackBar(String error) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
   }
 
   Widget _loginOrRegisterButton() {
@@ -620,22 +1331,23 @@ class _PhysicianSignInScreenState extends State<PhysicianSignInScreen> {
               ] else ...[
                 Padding(padding: const EdgeInsets.only(bottom: 105)),
                 _entryField('EMAIL', _controllerEmail),
-                _entryField('PASSWORD', _controllerPassword),
-                FlutterPwValidator(
-                    width: 300,
-                    height: 98,
-                    minLength: 8,
-                    uppercaseCharCount: 1,
-                    specialCharCount: 1,
-                    numericCharCount: 2,
-                    onSuccess: () {},
-                    controller: _controllerPassword),
+                _entryField('PASSWORD', _controllerPassword,
+                    focusNode: _passwordFocusNode),
+                if (_showPasswordValidator)
+                  FlutterPwValidator(
+                      width: 300,
+                      height: 98,
+                      minLength: 8,
+                      uppercaseCharCount: 1,
+                      specialCharCount: 1,
+                      numericCharCount: 2,
+                      onSuccess: () {},
+                      controller: _controllerPassword),
                 _passwordCheck(),
                 // _entryField('CONFIRM PASSWORD', _controllerConfirmPassword),
                 _entryField('FIRST NAME', _controllerFirstName),
                 _entryField('LAST NAME', _controllerLastName),
-                _entryField('PHONE', _controllerPhone),
-                // phoneCheck(_controllerPhone),
+                _phoneField('PHONE', _controllerPhone),
                 _entryField('NPI', _controllerNPI),
                 _entryField('ORG. NAME', _controllerOrgName),
                 _submitButton(),

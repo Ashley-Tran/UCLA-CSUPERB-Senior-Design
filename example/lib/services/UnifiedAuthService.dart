@@ -409,16 +409,14 @@ class UnifiedAuthService {
 
     if (response.statusCode == 200) {
       // If server returns an OK response, parse the JSON.
-      print('Response data: ${response.body}');
+      // print('Response data: ${response.body}');
     } else {
       // If the server did not return a 200 OK response,
-      print(
-          'Failed to login, status code: ${response.statusCode}, body: ${response.body}');
+      // print(
+      //     'Failed to login, status code: ${response.statusCode}, body: ${response.body}');
       throw Exception(
           'Failed to load data, status code: ${response.statusCode}');
     }
-
-    print("Login here");
   }
 
   // Method to reset passsword (Firebase side)
@@ -677,8 +675,6 @@ class UnifiedAuthService {
 
   //           startDates.add(startTime);
 
-    
-
   //           endDates.add("End Date: " +
   //               data["Result"]['Trips'][i]['Data']['EndDate'].toString());
 
@@ -738,7 +734,7 @@ class UnifiedAuthService {
   //               data["Result"]['Trips'][i]['Scores']['Speeding'].toString().split(".")[0]);
   //                 pScores.add(
   //              data["Result"]['Trips'][i]['Scores']['PhoneUsage'].toString().split(".")[0]);
-              
+
   //         }
   //       }
   //       trips.add(startDates);
@@ -770,7 +766,7 @@ class UnifiedAuthService {
   //   return trips;
   // }
 
- // Function to check the user's role
+  // Function to check the user's role
   Future<String> checkUserRole(String uid) async {
     // Check if UID exists under 'physicians' node
     final physicianRef = FirebaseDatabase.instance.ref('physicians/$uid');
@@ -791,7 +787,6 @@ class UnifiedAuthService {
     // User is neither a physician nor a patient, or doesn't exist
     return 'Unknown';
   }
-
 
   // Method to initialize and start tracking with the given device token
   Future<void> initializeAndStartTracking(String deviceToken) async {
